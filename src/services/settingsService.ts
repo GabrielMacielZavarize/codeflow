@@ -1,4 +1,4 @@
-export type ThemeOption = 'light' | 'dark';
+export type ThemeOption = 'light' | 'dark' | 'system';
 export type LanguageOption = 'pt-BR' | 'en-US' | 'es';
 
 export interface UserSettings {
@@ -28,7 +28,8 @@ export const getUserSettings = async (userId: string): Promise<UserSettings> => 
   return { ...mockUserSettings, userId };
 };
 
-export const updateUserSettings = async (userId: string, settings: Partial<UserSettings>): Promise<boolean> => {
-  console.log(`Configurações do usuário ${userId} atualizadas (mock):`, settings);
-  return true;
+export const saveUserSettings = async (userId: string, settings: Partial<UserSettings>): Promise<void> => {
+  // Versão mock para desenvolvimento
+  console.log('Salvando configurações:', { userId, settings });
+  return Promise.resolve();
 };

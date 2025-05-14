@@ -1,4 +1,3 @@
-
 export const ptBR = {
   // Auth
   login: {
@@ -27,16 +26,20 @@ export const ptBR = {
     error: "Falha ao enviar e-mail de recuperação"
   },
   register: {
-    title: "Cadastrar",
-    description: "Crie sua conta para acessar o sistema",
-    submitButton: "Cadastrar",
-    processing: "Processando...",
-    success: "Cadastro realizado com sucesso",
-    error: "Falha ao realizar cadastro",
-    haveAccount: "Já tem uma conta?",
-    login: "Entrar",
-    minChars: "Mínimo de 6 caracteres",
-    confirmPassword: "Confirmar Senha"
+    title: 'Criar Conta',
+    description: 'Preencha os dados abaixo para criar sua conta',
+    name: 'Nome',
+    email: 'E-mail',
+    password: 'Senha',
+    confirmPassword: 'Confirmar Senha',
+    submitButton: 'Criar Conta',
+    processing: 'Processando...',
+    success: 'Conta criada com sucesso!',
+    error: 'Erro ao criar conta',
+    haveAccount: 'Já tem uma conta?',
+    login: 'Faça login',
+    minChars: 'A senha deve ter pelo menos 6 caracteres',
+    passwordMismatch: 'As senhas não coincidem'
   },
   logout: {
     processing: "Saindo...",
@@ -58,22 +61,80 @@ export const ptBR = {
     notifications: "Notificações"
   },
 
+  // Dashboard
+  dashboard: {
+    title: "Painel",
+    description: "Gerencie suas tarefas e acompanhe o progresso",
+    addTask: "Nova Tarefa",
+    overview: "Visão Geral",
+    tasks: "Tarefas",
+    team: "Equipe",
+    analytics: "Análises",
+    projectProgress: "Progresso do Projeto",
+    recentActivity: "Atividade Recente",
+    completedTasks: "Tarefas Concluídas",
+    pendingTasks: "Tarefas Pendentes",
+    teamMembers: "Membros da Equipe",
+    hoursWorked: "Horas Trabalhadas",
+    priorityDistribution: "Distribuição de Prioridades",
+    taskStatus: "Status das Tarefas",
+    teamPerformance: "Desempenho da Equipe",
+    highPriority: "Alta",
+    mediumPriority: "Média",
+    lowPriority: "Baixa",
+    completed: "Concluído",
+    inProgress: "Em Progresso",
+    pending: "Pendente",
+    assignee: "Responsável",
+    dueDate: "Data de Entrega",
+    progress: "Progresso",
+    noTasks: "Nenhuma tarefa atribuída",
+    filterByPriority: "Filtrar por prioridade",
+    filterByStatus: "Filtrar por status",
+    allPriorities: "Todas as prioridades",
+    allStatus: "Todos os status",
+    taskDetails: "Detalhes da Tarefa",
+    memberDetails: "Detalhes do Membro",
+    about: "Sobre",
+    skills: "Habilidades",
+    currentTasks: "Tarefas Atuais",
+    joinDate: "Entrou em",
+    newMember: "Novo",
+    tasksAssigned: "tarefas atribuídas",
+    analyticsDescription: {
+      priority: "Análise das tarefas por nível de prioridade",
+      status: "Distribuição por status atual",
+      performance: "Tarefas por membro da equipe"
+    },
+    overviewShort: "Visão",
+    tasksShort: "Tarefas",
+    teamShort: "Equipe"
+  },
+
   // Settings
   settings: {
-    title: "Configurações",
-    subtitle: "Personalize sua experiência no sistema",
+    title: 'Configurações',
+    subtitle: 'Gerencie suas preferências e configurações da conta',
+    saveButton: 'Salvar alterações',
+    saving: 'Salvando...',
+    saveSuccess: 'Configurações salvas com sucesso!',
+    saveError: 'Erro ao salvar configurações',
     account: {
-      title: "Informações da Conta",
-      description: "Gerencie suas informações de usuário e preferências",
-      email: "E-mail"
+      title: 'Conta',
+      description: 'Gerencie suas informações de conta e preferências',
+      email: 'E-mail',
+      verified: 'Verificado',
+      memberSince: 'Membro desde',
+      accessLevel: 'Nível de acesso',
+      admin: 'Administrador'
     },
     appearance: {
-      title: "Aparência",
-      description: "Personalize o visual do sistema",
-      theme: "Tema",
-      light: "Claro",
-      dark: "Escuro",
-      system: "Sistema (Automático)"
+      title: 'Aparência',
+      description: 'Personalize a aparência do aplicativo',
+      theme: 'Tema',
+      light: 'Claro',
+      dark: 'Escuro',
+      system: 'Sistema'
     },
     language: {
       title: "Idioma",
@@ -83,29 +144,39 @@ export const ptBR = {
       es: "Espanhol"
     },
     notifications: {
-      title: "Notificações",
-      description: "Configure como deseja receber notificações",
+      title: 'Notificações',
+      description: 'Gerencie suas preferências de notificação',
       email: {
-        title: "Notificações por E-mail",
-        description: "Receba atualizações de tarefas por e-mail"
+        title: 'Notificações por e-mail',
+        description: 'Receba atualizações importantes por e-mail'
       },
       push: {
-        title: "Notificações Push",
-        description: "Receba notificações no navegador"
+        title: 'Notificações push',
+        description: 'Receba notificações em tempo real'
       },
       digest: {
-        title: "Resumo Semanal",
-        description: "Receba um resumo das atividades da semana"
+        title: 'Resumo semanal',
+        description: 'Receba um resumo das atividades da semana'
       },
       reminders: {
-        title: "Lembretes de Tarefas",
-        description: "Receba lembretes quando uma tarefa estiver próxima do prazo"
+        title: 'Lembretes de tarefas',
+        description: 'Receba lembretes sobre tarefas pendentes'
       }
     },
-    saveButton: "Salvar Todas as Configurações",
-    saving: "Salvando...",
-    saveSuccess: "Configurações salvas",
-    saveError: "Falha ao salvar configurações"
+    security: {
+      title: 'Segurança',
+      description: 'Gerencie suas configurações de segurança e senha',
+      currentPassword: 'Senha atual',
+      newPassword: 'Nova senha',
+      confirmPassword: 'Confirmar nova senha',
+      changePassword: 'Alterar senha',
+      passwordMismatch: 'As senhas não coincidem',
+      passwordChanged: 'Senha alterada com sucesso',
+      securityTip: {
+        title: 'Dica de segurança',
+        description: 'Use uma senha forte e única para sua conta. Recomendamos usar uma combinação de letras, números e caracteres especiais.'
+      }
+    }
   },
 
   // Team
@@ -134,67 +205,86 @@ export const ptBR = {
 
   // Reports
   reports: {
-    title: "Relatórios",
-    description: "Visualize estatísticas e acompanhe o progresso",
-    export: "Exportar",
-    exporting: "Exportando...",
-    exported: "Relatório exportado",
-    exportError: "Erro ao exportar relatório",
-    loading: "Carregando dados dos relatórios...",
-    monthlyTasks: "Tarefas por Mês",
-    monthlyDescription: "Evolução da quantidade de tarefas nos últimos meses",
-    memberTasks: "Tarefas por Membro",
-    memberDescription: "Distribuição de tarefas entre os membros da equipe"
+    title: 'Relatórios',
+    description: 'Visualize e gerencie seus relatórios',
+    export: 'Exportar',
+    exportData: 'Exportar Dados',
+    exporting: 'Exportando...',
+    exported: 'Relatório exportado em FORMAT',
+    exportError: 'Erro ao exportar relatório',
+    loading: 'Carregando relatórios...',
+    errorLoading: 'Erro ao carregar relatórios',
+    downloadSuccess: 'Relatório baixado com sucesso',
+    downloadError: 'Erro ao baixar relatório',
+    generate: 'Gerar',
+    generateReport: 'Gerar Relatório',
+    generateSuccess: 'Relatório gerado com sucesso',
+    totalReports: 'Total de Relatórios',
+    completedReports: 'Relatórios Concluídos',
+    pendingReports: 'Relatórios Pendentes',
+    teamMembers: 'Membros da Equipe',
+    overallProgress: 'Progresso Geral',
+    completionRate: 'Taxa de Conclusão',
+    recentReports: 'Relatórios Recentes',
+    daily: 'Diário',
+    weekly: 'Semanal',
+    monthly: 'Mensal',
+    completed: 'Concluído',
+    pending: 'Pendente',
+    createdBy: 'Criado por',
+    createdAt: 'Criado em',
+    highPriority: 'Alta Prioridade',
+    mediumPriority: 'Média Prioridade',
+    lowPriority: 'Baixa Prioridade'
   },
 
   // Tasks
   tasks: {
-    title: "Detalhes da Tarefa",
-    description: "Visualize e edite informações desta tarefa",
-    viewDescription: "Descrição",
-    assignedTo: "Atribuída a:",
-    statusLabel: "Status:",
-    dueDate: "Data de entrega:",
-    addTask: "Nova Tarefa",
-    totalTasks: "Total de Tarefas",
-    highPriority: "Alta Prioridade",
-    mediumPriority: "Média Prioridade",
-    lowPriority: "Baixa Prioridade",
-    all: "Todas",
+    title: 'Tarefas',
+    description: 'Gerencie suas tarefas e acompanhe o progresso',
+    addTask: 'Nova Tarefa',
+    addTaskDescription: 'Adicione uma nova tarefa e defina sua prioridade',
+    titleLabel: 'Título',
+    titlePlaceholder: 'Título da tarefa',
+    descriptionLabel: 'Descrição',
+    descriptionPlaceholder: 'Descreva os detalhes da tarefa',
+    priorityLabel: 'Prioridade',
+    selectPriority: 'Selecione a prioridade',
     priority: {
-      high: "Alta",
-      medium: "Média",
-      low: "Baixa"
+      high: 'Alta',
+      medium: 'Média',
+      low: 'Baixa'
     },
     status: {
-      pending: "Pendente",
-      inProgress: "Em Progresso",
-      completed: "Concluída",
-      canceled: "Cancelada",
-      undefined: "Não definido"
+      pending: 'Pendente',
+      inProgress: 'Em Progresso',
+      completed: 'Concluída'
     },
-    editTitle: "Editar Tarefa",
-    editDescription: "Atualize as informações desta tarefa",
-    titleLabel: "Título",
-    descriptionLabel: "Descrição",
-    priorityLabel: "Prioridade",
-    assignLabel: "Atribuir a",
-    unassigned: "Não atribuída",
-    saveChanges: "Salvar Alterações",
-    cancel: "Cancelar",
-    createdAt: "Criada em",
-    deleted: "Tarefa excluída",
-    deleteError: "Erro ao excluir tarefa",
-    updated: "Tarefa atualizada",
-    updateError: "Erro ao atualizar tarefa",
-    edit: "Editar",
-    delete: "Excluir",
+    assignLabel: 'Responsável',
+    selectAssignee: 'Selecione o responsável',
+    dueDate: 'Data de Entrega',
+    selectDate: 'Selecione uma data',
+    noDueDate: 'Sem data definida',
+    assignee: 'Responsável',
+    cancel: 'Cancelar',
+    adding: 'Adicionando...',
+    error: 'Você precisa estar logado para adicionar tarefas',
+    titleRequired: 'O título é obrigatório',
+    added: 'Tarefa adicionada com sucesso',
+    addError: 'Erro ao adicionar tarefa',
+    viewDescription: 'Descrição',
+    assignedTo: 'Atribuída a:',
+    statusLabel: 'Status:',
+    editTitle: 'Editar Tarefa',
+    editDescription: 'Atualize as informações desta tarefa',
+    edit: 'Editar',
+    delete: 'Excluir',
     confirmDelete: "Tem certeza que deseja excluir esta tarefa?",
     back: "Voltar para o Painel",
     notFound: "Tarefa não encontrada",
     notFoundDescription: "A tarefa que você está procurando não existe ou foi removida."
   },
-  
+
   // General
   general: {
     loading: "Carregando...",
@@ -202,5 +292,69 @@ export const ptBR = {
     success: "Sucesso",
     tryAgain: "Tentar novamente",
     administrator: "Administrador"
+  },
+
+  // Calendar
+  calendar: {
+    title: 'Calendário',
+    description: 'Visualize e gerencie suas tarefas por data',
+    loading: 'Carregando calendário...',
+    errorLoading: 'Erro ao carregar o calendário',
+    today: 'Hoje',
+    addTask: 'Nova Tarefa',
+    filterByPriority: 'Filtrar por prioridade',
+    filterByStatus: 'Filtrar por status',
+    allPriorities: 'Todas as prioridades',
+    allStatus: 'Todos os status',
+    highPriority: 'Alta Prioridade',
+    mediumPriority: 'Média Prioridade',
+    lowPriority: 'Baixa Prioridade',
+    pending: 'Pendente',
+    inProgress: 'Em Progresso',
+    completed: 'Concluída',
+    taskAdded: 'Tarefa adicionada com sucesso',
+    errorAdding: 'Erro ao adicionar tarefa'
+  },
+
+  // Audit Logs
+  auditLogs: {
+    title: 'Logs de Auditoria',
+    description: 'Timeline de atividades do sistema',
+    activityHistory: 'Histórico de Atividades',
+    activityDescription: 'Registro de ações realizadas no sistema',
+    loading: 'Carregando logs...',
+    noActivities: 'Nenhuma atividade registrada',
+    errorLoading: 'Não foi possível obter o histórico de atividades',
+    accessDenied: 'Você não tem permissão para visualizar os logs de auditoria',
+    filters: 'Filtros',
+    filtersDescription: 'Filtre as atividades por tipo, entidade ou texto',
+    searchPlaceholder: 'Buscar por usuário, ação ou entidade...',
+    filterByAction: 'Filtrar por ação',
+    filterByEntity: 'Filtrar por entidade',
+    allActions: 'Todas as ações',
+    allEntities: 'Todas as entidades',
+    actions: {
+      create: 'Criar',
+      update: 'Atualizar',
+      delete: 'Excluir',
+      complete: 'Concluir',
+      assign: 'Atribuir',
+      login: 'Login',
+      logout: 'Logout'
+    },
+    entities: {
+      task: 'Tarefa',
+      user: 'Usuário',
+      team: 'Equipe',
+      system: 'Sistema'
+    }
+  },
+
+  // Unauthorized
+  unauthorized: {
+    title: "Acesso Negado",
+    description: "Você não tem permissão para acessar esta página. Entre em contato com o administrador do sistema se precisar de acesso.",
+    backToDashboard: "Voltar para o Painel",
+    goBack: "Voltar"
   }
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from '@/lib/utils';
+import { getNotifications } from '../services/notificationService';
 
 const Navbar = () => {
   const { currentUser, logout } = useAuth();
@@ -33,8 +34,25 @@ const Navbar = () => {
   const location = useLocation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { t } = useLanguage();
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const loadNotifications = async () => {
+      if (currentUser) {
+        try {
+          const notifications = await getNotifications(currentUser.uid);
+          const unread = notifications.filter(n => !n.read).length;
+          setUnreadCount(unread);
+        } catch (error) {
+          console.error('Erro ao carregar notificações:', error);
+        }
+      }
+    };
+
+    loadNotifications();
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -165,9 +183,18 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           <ThemeToggle />
 
-          <Button variant="ghost" size="icon" className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            onClick={() => navigate('/notifications')}
+          >
             <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500"></span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
           </Button>
 
           <DropdownMenu>

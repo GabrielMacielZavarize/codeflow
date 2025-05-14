@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,7 +14,7 @@ import { ptBR } from 'date-fns/locale/pt-BR';
 import { enUS } from 'date-fns/locale/en-US';
 import { es } from 'date-fns/locale/es';
 import { Calendar, Clock, Edit, Trash2, User } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface TaskDetailsProps {
@@ -41,13 +40,13 @@ const TaskView = ({ task, teamMembers }: { task: Task, teamMembers: TeamMember[]
 
   // Get the correct locale for date formatting based on selected language
   const getLocale = () => {
-    switch(language) {
-      case 'es': 
+    switch (language) {
+      case 'es':
         return es;
-      case 'en-US': 
+      case 'en-US':
         return enUS;
       case 'pt-BR':
-      default: 
+      default:
         return ptBR;
     }
   };
@@ -153,7 +152,7 @@ const TaskView = ({ task, teamMembers }: { task: Task, teamMembers: TeamMember[]
 
 const TaskEditForm = ({ task, teamMembers, editForm, setEditForm, handleEditSubmit, setIsEditing }: TaskDetailsProps) => {
   const { t } = useLanguage();
-  
+
   return (
     <Card>
       <CardHeader>
@@ -256,7 +255,7 @@ const TaskEditForm = ({ task, teamMembers, editForm, setEditForm, handleEditSubm
 
 const TaskDetailsLoading = () => {
   const { t } = useLanguage();
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-center items-center py-12">
@@ -288,14 +287,11 @@ const TaskDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { toast } = useToast();
   const { t } = useLanguage();
-
   const [task, setTask] = useState<Task | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
@@ -306,106 +302,71 @@ const TaskDetails = () => {
 
   useEffect(() => {
     const loadTaskAndTeam = async () => {
-      if (id) {
-        setIsLoading(true);
-        try {
-          const fetchedTask = await getTaskById(id);
-          const fetchedTeamMembers = await getTeamMembers();
-
-          if (fetchedTask) {
-            setTask(fetchedTask);
-            setEditForm({
-              title: fetchedTask.title,
-              description: fetchedTask.description,
-              priority: fetchedTask.priority,
-              status: fetchedTask.status || 'pending',
-              assignedTo: fetchedTask.assignedTo || ''
-            });
-          }
-
-          setTeamMembers(fetchedTeamMembers);
-        } catch (error) {
-          console.error('Erro ao carregar tarefa:', error);
-          toast({
-            title: t.general.error,
-            description: t.tasks.notFound,
-            variant: 'destructive'
-          });
-        } finally {
-          setIsLoading(false);
+      setLoading(true);
+      try {
+        if (!id) {
+          throw new Error('Task ID not provided');
         }
+
+        const [taskData, teamData] = await Promise.all([
+          getTaskById(id),
+          getTeamMembers()
+        ]);
+
+        setTask(taskData);
+        setTeamMembers(teamData);
+        setEditForm({
+          title: taskData.title,
+          description: taskData.description || '',
+          priority: taskData.priority,
+          status: taskData.status || '',
+          assignedTo: taskData.assignedTo || ''
+        });
+      } catch (error) {
+        console.error('Error loading task:', error);
+        toast.error(t.tasks.errorLoading);
+        navigate('/dashboard');
+      } finally {
+        setLoading(false);
       }
     };
 
     loadTaskAndTeam();
-  }, [id, toast, t]);
+  }, [id, navigate, t]);
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!task || !id) return;
+    if (!task) return;
 
     try {
-      const success = await updateTask(id, {
-        title: editForm.title,
-        description: editForm.description,
-        priority: editForm.priority as any,
-        status: editForm.status as any,
-        assignedTo: editForm.assignedTo || undefined
+      const updatedTask = await updateTask(task.id, {
+        ...task,
+        ...editForm
       });
 
-      if (success) {
-        setTask({
-          ...task,
-          title: editForm.title,
-          description: editForm.description,
-          priority: editForm.priority as any,
-          status: editForm.status as any,
-          assignedTo: editForm.assignedTo || undefined
-        });
-
-        setIsEditing(false);
-        toast({
-          title: t.general.success,
-          description: t.tasks.updated
-        });
-      }
+      setTask(updatedTask);
+      setIsEditing(false);
+      toast.success(t.tasks.updateSuccess);
     } catch (error) {
-      console.error('Erro ao atualizar tarefa:', error);
-      toast({
-        title: t.general.error,
-        description: t.tasks.updateError,
-        variant: 'destructive'
-      });
+      console.error('Error updating task:', error);
+      toast.error(t.tasks.updateError);
     }
   };
 
   const handleDeleteTask = async () => {
-    if (!task || !id) return;
+    if (!task) return;
 
-    if (window.confirm(t.tasks.confirmDelete)) {
-      try {
-        const success = await deleteTask(id);
-
-        if (success) {
-          toast({
-            title: t.general.success,
-            description: t.tasks.deleted
-          });
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        console.error('Erro ao excluir tarefa:', error);
-        toast({
-          title: t.general.error,
-          description: t.tasks.deleteError,
-          variant: 'destructive'
-        });
-      }
+    try {
+      await deleteTask(task.id);
+      toast.success(t.tasks.deleteSuccess);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast.error(t.tasks.deleteError);
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <TaskDetailsLoading />;
   }
 

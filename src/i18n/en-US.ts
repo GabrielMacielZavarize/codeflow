@@ -1,4 +1,3 @@
-
 export const enUS = {
   // Auth
   login: {
@@ -27,16 +26,20 @@ export const enUS = {
     error: "Failed to send recovery email"
   },
   register: {
-    title: "Register",
-    description: "Create your account to access the system",
-    submitButton: "Register",
-    processing: "Processing...",
-    success: "Successfully registered",
-    error: "Failed to register",
-    haveAccount: "Already have an account?",
-    login: "Log in",
-    minChars: "Minimum 6 characters",
-    confirmPassword: "Confirm Password"
+    title: 'Create Account',
+    description: 'Fill in the details below to create your account',
+    name: 'Name',
+    email: 'Email',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    submitButton: 'Create Account',
+    processing: 'Processing...',
+    success: 'Account created successfully!',
+    error: 'Error creating account',
+    haveAccount: 'Already have an account?',
+    login: 'Login',
+    minChars: 'Password must be at least 6 characters',
+    passwordMismatch: 'Passwords do not match'
   },
   logout: {
     processing: "Logging out...",
@@ -60,20 +63,28 @@ export const enUS = {
 
   // Settings
   settings: {
-    title: "Settings",
-    subtitle: "Customize your system experience",
+    title: 'Settings',
+    subtitle: 'Manage your account preferences and settings',
+    saveButton: 'Save changes',
+    saving: 'Saving...',
+    saveSuccess: 'Settings saved successfully!',
+    saveError: 'Error saving settings',
     account: {
-      title: "Account Information",
-      description: "Manage your user information and preferences",
-      email: "Email"
+      title: 'Account',
+      description: 'Manage your account information and preferences',
+      email: 'Email',
+      verified: 'Verified',
+      memberSince: 'Member since',
+      accessLevel: 'Access level',
+      admin: 'Administrator'
     },
     appearance: {
-      title: "Appearance",
-      description: "Customize the system's visual aspects",
-      theme: "Theme",
-      light: "Light",
-      dark: "Dark",
-      system: "System (Automatic)"
+      title: 'Appearance',
+      description: 'Customize the application appearance',
+      theme: 'Theme',
+      light: 'Light',
+      dark: 'Dark',
+      system: 'System'
     },
     language: {
       title: "Language",
@@ -83,29 +94,39 @@ export const enUS = {
       es: "Spanish"
     },
     notifications: {
-      title: "Notifications",
-      description: "Configure how you wish to receive notifications",
+      title: 'Notifications',
+      description: 'Manage your notification preferences',
       email: {
-        title: "Email Notifications",
-        description: "Receive task updates by email"
+        title: 'Email notifications',
+        description: 'Receive important updates via email'
       },
       push: {
-        title: "Push Notifications",
-        description: "Receive notifications in the browser"
+        title: 'Push notifications',
+        description: 'Receive real-time notifications'
       },
       digest: {
-        title: "Weekly Digest",
-        description: "Receive a summary of weekly activities"
+        title: 'Weekly digest',
+        description: 'Receive a summary of weekly activities'
       },
       reminders: {
-        title: "Task Reminders",
-        description: "Receive reminders when a task is approaching its deadline"
+        title: 'Task reminders',
+        description: 'Receive reminders about pending tasks'
       }
     },
-    saveButton: "Save All Settings",
-    saving: "Saving...",
-    saveSuccess: "Settings saved",
-    saveError: "Failed to save settings"
+    security: {
+      title: 'Security',
+      description: 'Manage your security settings and password',
+      currentPassword: 'Current password',
+      newPassword: 'New password',
+      confirmPassword: 'Confirm new password',
+      changePassword: 'Change password',
+      passwordMismatch: 'Passwords do not match',
+      passwordChanged: 'Password changed successfully',
+      securityTip: {
+        title: 'Security tip',
+        description: 'Use a strong and unique password for your account. We recommend using a combination of letters, numbers, and special characters.'
+      }
+    }
   },
 
   // Team
@@ -134,65 +155,80 @@ export const enUS = {
 
   // Reports
   reports: {
-    title: "Reports",
-    description: "View statistics and track progress",
-    export: "Export",
-    exporting: "Exporting...",
-    exported: "Report exported",
-    exportError: "Error exporting report",
-    loading: "Loading report data...",
-    monthlyTasks: "Tasks by Month",
-    monthlyDescription: "Monthly task count evolution",
-    memberTasks: "Tasks by Member",
-    memberDescription: "Task distribution among team members"
+    title: 'Reports',
+    description: 'View and manage your reports',
+    export: 'Export',
+    exportData: 'Export Data',
+    exporting: 'Exporting...',
+    exported: 'Report exported in FORMAT',
+    exportError: 'Error exporting report',
+    loading: 'Loading reports...',
+    errorLoading: 'Error loading reports',
+    downloadSuccess: 'Report downloaded successfully',
+    downloadError: 'Error downloading report',
+    generate: 'Generate',
+    generateReport: 'Generate Report',
+    generateSuccess: 'Report generated successfully',
+    totalReports: 'Total Reports',
+    completedReports: 'Completed Reports',
+    pendingReports: 'Pending Reports',
+    teamMembers: 'Team Members',
+    overallProgress: 'Overall Progress',
+    completionRate: 'Completion Rate',
+    recentReports: 'Recent Reports',
+    daily: 'Daily',
+    weekly: 'Weekly',
+    monthly: 'Monthly',
+    completed: 'Completed',
+    pending: 'Pending',
+    createdBy: 'Created by',
+    createdAt: 'Created at',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority'
   },
 
   // Tasks
   tasks: {
-    title: "Task Details",
-    description: "View and edit task information",
-    viewDescription: "Description",
-    assignedTo: "Assigned to:",
-    statusLabel: "Status:",
-    dueDate: "Due date:",
-    addTask: "New Task",
-    totalTasks: "Total Tasks",
-    highPriority: "High Priority",
-    mediumPriority: "Medium Priority",
-    lowPriority: "Low Priority",
-    all: "All",
+    title: 'Tasks',
+    description: 'Manage your tasks and track progress',
+    addTask: 'New Task',
+    addTaskDescription: 'Add a new task and set its priority',
+    titleLabel: 'Title',
+    titlePlaceholder: 'Task title',
+    descriptionLabel: 'Description',
+    descriptionPlaceholder: 'Describe the task details',
+    priorityLabel: 'Priority',
+    selectPriority: 'Select priority',
     priority: {
-      high: "High",
-      medium: "Medium",
-      low: "Low"
+      high: 'High',
+      medium: 'Medium',
+      low: 'Low'
     },
     status: {
-      pending: "Pending",
-      inProgress: "In Progress",
-      completed: "Completed",
-      canceled: "Canceled",
-      undefined: "Not defined"
+      pending: 'Pending',
+      inProgress: 'In Progress',
+      completed: 'Completed'
     },
-    editTitle: "Edit Task",
-    editDescription: "Update this task's information",
-    titleLabel: "Title",
-    descriptionLabel: "Description",
-    priorityLabel: "Priority",
-    assignLabel: "Assign to",
-    unassigned: "Unassigned",
-    saveChanges: "Save Changes",
-    cancel: "Cancel",
-    createdAt: "Created on",
-    deleted: "Task deleted",
-    deleteError: "Error deleting task",
-    updated: "Task updated",
-    updateError: "Error updating task",
-    edit: "Edit",
-    delete: "Delete",
-    confirmDelete: "Are you sure you want to delete this task?",
-    back: "Back to Dashboard",
-    notFound: "Task not found",
-    notFoundDescription: "The task you are looking for does not exist or was removed."
+    assignLabel: 'Assignee',
+    selectAssignee: 'Select assignee',
+    dueDate: 'Due Date',
+    selectDate: 'Select a date',
+    noDueDate: 'No due date',
+    assignee: 'Assignee',
+    cancel: 'Cancel',
+    adding: 'Adding...',
+    error: 'You need to be logged in to add tasks',
+    titleRequired: 'Title is required',
+    added: 'Task added successfully',
+    addError: 'Error adding task',
+    viewDescription: 'Description',
+    assignedTo: 'Assigned to:',
+    statusLabel: 'Status:',
+    editTitle: 'Edit Task',
+    editDescription: 'Update task information',
+    edit: 'Edit',
+    delete: 'Delete'
   },
 
   // General
@@ -202,5 +238,76 @@ export const enUS = {
     success: "Success",
     tryAgain: "Try again",
     administrator: "Administrator"
+  },
+
+  // Dashboard
+  dashboard: {
+    overviewShort: "Overview",
+    tasksShort: "Tasks",
+    teamShort: "Team"
+  },
+
+  // Calendar
+  calendar: {
+    title: 'Calendar',
+    description: 'View and manage your tasks by date',
+    loading: 'Loading calendar...',
+    errorLoading: 'Error loading calendar',
+    today: 'Today',
+    addTask: 'New Task',
+    filterByPriority: 'Filter by priority',
+    filterByStatus: 'Filter by status',
+    allPriorities: 'All priorities',
+    allStatus: 'All status',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    pending: 'Pending',
+    inProgress: 'In Progress',
+    completed: 'Completed',
+    taskAdded: 'Task added successfully',
+    errorAdding: 'Error adding task'
+  },
+
+  // Audit Logs
+  auditLogs: {
+    title: 'Audit Logs',
+    description: 'System activity timeline',
+    activityHistory: 'Activity History',
+    activityDescription: 'Record of system actions',
+    loading: 'Loading logs...',
+    noActivities: 'No activities recorded',
+    errorLoading: 'Could not load activity history',
+    accessDenied: 'You do not have permission to view audit logs',
+    filters: 'Filters',
+    filtersDescription: 'Filter activities by type, entity or text',
+    searchPlaceholder: 'Search by user, action or entity...',
+    filterByAction: 'Filter by action',
+    filterByEntity: 'Filter by entity',
+    allActions: 'All actions',
+    allEntities: 'All entities',
+    actions: {
+      create: 'Create',
+      update: 'Update',
+      delete: 'Delete',
+      complete: 'Complete',
+      assign: 'Assign',
+      login: 'Login',
+      logout: 'Logout'
+    },
+    entities: {
+      task: 'Task',
+      user: 'User',
+      team: 'Team',
+      system: 'System'
+    }
+  },
+
+  // Unauthorized
+  unauthorized: {
+    title: "Access Denied",
+    description: "You don't have permission to access this page. Contact the system administrator if you need access.",
+    backToDashboard: "Back to Dashboard",
+    goBack: "Go Back"
   }
 };

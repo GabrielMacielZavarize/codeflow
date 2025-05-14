@@ -1,4 +1,3 @@
-
 export const es = {
   // Auth
   login: {
@@ -27,16 +26,20 @@ export const es = {
     error: "Error al enviar correo de recuperación"
   },
   register: {
-    title: "Registrarse",
-    description: "Cree su cuenta para acceder al sistema",
-    submitButton: "Registrarse",
-    processing: "Procesando...",
-    success: "Registro exitoso",
-    error: "Error al registrarse",
-    haveAccount: "¿Ya tiene una cuenta?",
-    login: "Iniciar sesión",
-    minChars: "Mínimo 6 caracteres",
-    confirmPassword: "Confirmar Contraseña"
+    title: 'Crear Cuenta',
+    description: 'Complete los detalles a continuación para crear su cuenta',
+    name: 'Nombre',
+    email: 'Correo electrónico',
+    password: 'Contraseña',
+    confirmPassword: 'Confirmar Contraseña',
+    submitButton: 'Crear Cuenta',
+    processing: 'Procesando...',
+    success: '¡Cuenta creada con éxito!',
+    error: 'Error al crear la cuenta',
+    haveAccount: '¿Ya tiene una cuenta?',
+    login: 'Iniciar sesión',
+    minChars: 'La contraseña debe tener al menos 6 caracteres',
+    passwordMismatch: 'Las contraseñas no coinciden'
   },
   logout: {
     processing: "Cerrando sesión...",
@@ -134,17 +137,37 @@ export const es = {
 
   // Reports
   reports: {
-    title: "Informes",
-    description: "Visualice estadísticas y siga el progreso",
-    export: "Exportar",
-    exporting: "Exportando...",
-    exported: "Informe exportado",
-    exportError: "Error al exportar informe",
-    loading: "Cargando datos de informes...",
-    monthlyTasks: "Tareas por Mes",
-    monthlyDescription: "Evolución de la cantidad de tareas en los últimos meses",
-    memberTasks: "Tareas por Miembro",
-    memberDescription: "Distribución de tareas entre los miembros del equipo"
+    title: 'Informes',
+    description: 'Ver y gestionar tus informes',
+    export: 'Exportar',
+    exportData: 'Exportar Datos',
+    exporting: 'Exportando...',
+    exported: 'Informe exportado en FORMAT',
+    exportError: 'Error al exportar informe',
+    loading: 'Cargando informes...',
+    errorLoading: 'Error al cargar informes',
+    downloadSuccess: 'Informe descargado con éxito',
+    downloadError: 'Error al descargar informe',
+    generate: 'Generar',
+    generateReport: 'Generar Informe',
+    generateSuccess: 'Informe generado con éxito',
+    totalReports: 'Total de Informes',
+    completedReports: 'Informes Completados',
+    pendingReports: 'Informes Pendientes',
+    teamMembers: 'Miembros del Equipo',
+    overallProgress: 'Progreso General',
+    completionRate: 'Tasa de Finalización',
+    recentReports: 'Informes Recientes',
+    daily: 'Diario',
+    weekly: 'Semanal',
+    monthly: 'Mensual',
+    completed: 'Completado',
+    pending: 'Pendiente',
+    createdBy: 'Creado por',
+    createdAt: 'Creado en',
+    highPriority: 'Alta Prioridad',
+    mediumPriority: 'Prioridad Media',
+    lowPriority: 'Baja Prioridad'
   },
 
   // Tasks
@@ -194,7 +217,7 @@ export const es = {
     notFound: "Tarea no encontrada",
     notFoundDescription: "La tarea que está buscando no existe o fue eliminada."
   },
-  
+
   // General
   general: {
     loading: "Cargando...",
@@ -202,5 +225,42 @@ export const es = {
     success: "Éxito",
     tryAgain: "Intentar de nuevo",
     administrator: "Administrador"
+  },
+
+  // Dashboard
+  dashboard: {
+    overviewShort: "Vista",
+    tasksShort: "Tareas",
+    teamShort: "Equipo"
+  },
+
+  // Calendar
+  calendar: {
+    title: 'Calendario',
+    description: 'Ver y gestionar tus tareas por fecha',
+    loading: 'Cargando calendario...',
+    errorLoading: 'Error al cargar el calendario',
+    today: 'Hoy',
+    addTask: 'Nueva Tarea',
+    filterByPriority: 'Filtrar por prioridad',
+    filterByStatus: 'Filtrar por estado',
+    allPriorities: 'Todas las prioridades',
+    allStatus: 'Todos los estados',
+    highPriority: 'Alta Prioridad',
+    mediumPriority: 'Prioridad Media',
+    lowPriority: 'Baja Prioridad',
+    pending: 'Pendiente',
+    inProgress: 'En Progreso',
+    completed: 'Completada',
+    taskAdded: 'Tarea agregada con éxito',
+    errorAdding: 'Error al agregar tarea'
+  },
+
+  // Unauthorized
+  unauthorized: {
+    title: "Acceso Denegado",
+    description: "No tiene permiso para acceder a esta página. Contacte al administrador del sistema si necesita acceso.",
+    backToDashboard: "Volver al Panel",
+    goBack: "Volver"
   }
 };

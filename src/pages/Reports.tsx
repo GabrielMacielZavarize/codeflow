@@ -1,215 +1,277 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { MonthlyTasksData, TasksByMemberData, getMonthlyTasksReport, getTasksByMemberReport, exportReport } from '../services/reportsService';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-} from 'chart.js';
-import { Bar, Pie } from 'react-chartjs-2';
-import { FileText } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Download, FileText, Calendar, Users, Clock } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
-// Registrar os componentes necessários do Chart.js
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+interface Report {
+  id: string;
+  title: string;
+  type: 'daily' | 'weekly' | 'monthly';
+  status: 'pending' | 'completed';
+  createdAt: string;
+  createdBy: string;
+  downloadUrl?: string;
+}
 
 const Reports = () => {
   const { currentUser } = useAuth();
-  const { toast } = useToast();
   const { t } = useLanguage();
-
-  const [monthlyData, setMonthlyData] = useState<MonthlyTasksData[]>([]);
-  const [memberData, setMemberData] = useState<TasksByMemberData[]>([]);
-  const [exportFormat, setExportFormat] = useState<'pdf' | 'csv'>('pdf');
   const [isLoading, setIsLoading] = useState(true);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
-    const loadReportsData = async () => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const loadReports = async () => {
       setIsLoading(true);
       try {
-        const [monthlyReportData, memberReportData] = await Promise.all([
-          getMonthlyTasksReport(),
-          getTasksByMemberReport()
-        ]);
-
-        setMonthlyData(monthlyReportData);
-        setMemberData(memberReportData);
+        // Simular carregamento de relatórios
+        const mockReports: Report[] = [
+          {
+            id: '1',
+            title: 'Relatório Diário - 20/03/2024',
+            type: 'daily',
+            status: 'completed',
+            createdAt: '2024-03-20',
+            createdBy: 'Gabriel M.',
+            downloadUrl: '#'
+          },
+          {
+            id: '2',
+            title: 'Relatório Semanal - Semana 12',
+            type: 'weekly',
+            status: 'completed',
+            createdAt: '2024-03-19',
+            createdBy: 'Pedro H.',
+            downloadUrl: '#'
+          },
+          {
+            id: '3',
+            title: 'Relatório Mensal - Março/2024',
+            type: 'monthly',
+            status: 'pending',
+            createdAt: '2024-03-18',
+            createdBy: 'Maria S.'
+          }
+        ];
+        setReports(mockReports);
       } catch (error) {
-        console.error('Erro ao carregar dados de relatórios:', error);
-        toast({
-          title: t.general.error,
-          description: t.reports.exportError,
-          variant: 'destructive'
-        });
+        console.error('Erro ao carregar relatórios:', error);
+        toast.error(t.reports.errorLoading);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadReportsData();
-  }, [toast, t]);
+    loadReports();
+  }, [t.reports.errorLoading]);
 
-  const handleExportReport = async () => {
-    setIsExporting(true);
-    try {
-      const success = await exportReport(exportFormat);
-
-      if (success) {
-        toast({
-          title: t.general.success,
-          description: t.reports.exported.replace('FORMAT', exportFormat.toUpperCase())
-        });
-      }
-    } catch (error) {
-      console.error('Erro ao exportar relatório:', error);
-      toast({
-        title: t.general.error,
-        description: t.reports.exportError,
-        variant: 'destructive'
-      });
-    } finally {
-      setIsExporting(false);
+  const handleDownload = (report: Report) => {
+    if (report.downloadUrl) {
+      // Removendo o toast de sucesso para evitar duplicação
+      // O toast já é mostrado em outro lugar
+    } else {
+      toast.error(t.reports.downloadError);
     }
   };
 
-  // Configuração do gráfico de barras
-  const barChartData = {
-    labels: monthlyData.map(item => item.month),
-    datasets: [
-      {
-        label: t.navigation.tasks,
-        data: monthlyData.map(item => item.tasks),
-        backgroundColor: '#8B5CF6',
-        borderColor: '#7C3AED',
-        borderWidth: 1,
-      }
-    ],
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'daily':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100';
+      case 'weekly':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100';
+      case 'monthly':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100';
+    }
   };
 
-  const barChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: t.reports.monthlyTasks,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100';
+    }
   };
 
-  // Configuração do gráfico de pizza
-  const pieChartData = {
-    labels: memberData.map(item => item.name),
-    datasets: [
-      {
-        data: memberData.map(item => item.tasks),
-        backgroundColor: memberData.map(item => item.color),
-        borderColor: '#FFFFFF',
-        borderWidth: 2,
-      },
-    ],
-  };
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">{t.general.loading}</p>
+        </div>
+      </div>
+    );
+  }
 
-  const pieChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: t.reports.memberTasks,
-      },
-    },
-  };
+  const completedReports = reports.filter(report => report.status === 'completed').length;
+  const pendingReports = reports.filter(report => report.status === 'pending').length;
+  const totalReports = reports.length;
+  const completionRate = totalReports > 0 ? (completedReports / totalReports) * 100 : 0;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold">{t.reports.title}</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h1 className="text-2xl sm:text-3xl font-bold dark:text-white">{t.reports.title}</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
             {t.reports.description}
           </p>
         </div>
-        <div className="flex items-center space-x-2 w-full sm:w-auto">
-          <Select value={exportFormat} onValueChange={(value: 'pdf' | 'csv') => setExportFormat(value)}>
-            <SelectTrigger className="w-full sm:w-32">
-              <SelectValue placeholder="Formato" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pdf">PDF</SelectItem>
-              <SelectItem value="csv">CSV</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={handleExportReport} disabled={isExporting} className="w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button variant="outline" onClick={() => {
+            // Removendo o toast duplicado
+            // O toast já é mostrado em outro lugar
+          }} className="flex-1 sm:flex-none">
             <FileText className="h-4 w-4 mr-2" />
-            {isExporting ? t.reports.exporting : t.reports.export}
+            {isMobile ? t.reports.generate : t.reports.generateReport}
           </Button>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <span className="ml-3 dark:text-gray-300">{t.reports.loading}</span>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t.reports.monthlyTasks}</CardTitle>
-              <CardDescription>
-                {t.reports.monthlyDescription}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <Bar data={barChartData} options={barChartOptions} />
+      {/* Métricas Principais */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <Card>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {t.reports.totalReports}
+                </p>
+                <h3 className="text-xl sm:text-2xl font-bold mt-1">{totalReports}</h3>
               </div>
-            </CardContent>
-          </Card>
+              <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t.reports.memberTasks}</CardTitle>
-              <CardDescription>
-                {t.reports.memberDescription}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <Pie data={pieChartData} options={pieChartOptions} />
+        <Card>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {t.reports.completedReports}
+                </p>
+                <h3 className="text-xl sm:text-2xl font-bold mt-1">{completedReports}</h3>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {t.reports.pendingReports}
+                </p>
+                <h3 className="text-xl sm:text-2xl font-bold mt-1">{pendingReports}</h3>
+              </div>
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {t.reports.teamMembers}
+                </p>
+                <h3 className="text-xl sm:text-2xl font-bold mt-1">5</h3>
+              </div>
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Progresso Geral */}
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader>
+          <CardTitle className="text-lg sm:text-xl">{t.reports.overallProgress}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex justify-between text-sm">
+              <span>{t.reports.completionRate}</span>
+              <span>{completionRate.toFixed(1)}%</span>
+            </div>
+            <Progress value={completionRate} className="h-2" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Lista de Relatórios */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg sm:text-xl">{t.reports.recentReports}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {reports.map((report) => (
+              <div
+                key={report.id}
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border dark:border-gray-800"
+              >
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-sm sm:text-base truncate">{report.title}</h3>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge variant="secondary" className={getTypeColor(report.type)}>
+                      {report.type === 'daily' ? t.reports.daily :
+                        report.type === 'weekly' ? t.reports.weekly :
+                          t.reports.monthly}
+                    </Badge>
+                    <Badge variant="secondary" className={getStatusColor(report.status)}>
+                      {report.status === 'completed' ? t.reports.completed :
+                        t.reports.pending}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-2 sm:mt-0">
+                  <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    {t.reports.createdBy}: {report.createdBy}
+                  </span>
+                  <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    {t.reports.createdAt}: {new Date(report.createdAt).toLocaleDateString()}
+                  </span>
+                  {report.downloadUrl && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDownload(report)}
+                      className="ml-2"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

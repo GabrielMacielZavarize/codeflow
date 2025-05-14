@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { ThemeOption } from '../services/settingsService';
+import { getUserSettings, saveUserSettings } from '../services/settingsService';
+import { useAuth } from './AuthContext';
+
+type ThemeOption = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   theme: ThemeOption;
-  setTheme: (theme: ThemeOption) => void;
-  toggleTheme: () => void;
+  setTheme: (theme: ThemeOption) => Promise<void>;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -18,41 +20,49 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<ThemeOption>(() => {
-    // Tenta recuperar o tema do localStorage
-    const savedTheme = localStorage.getItem('codeflow-theme');
+  const [theme, setThemeState] = useState<ThemeOption>('system');
+  const { currentUser } = useAuth();
 
-    // Verifica se o tema salvo é válido (light ou dark)
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      return savedTheme as ThemeOption;
-    }
+  useEffect(() => {
+    const loadUserTheme = async () => {
+      if (currentUser) {
+        try {
+          const settings = await getUserSettings(currentUser.uid);
+          if (settings.theme) {
+            setThemeState(settings.theme);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar configurações de tema:', error);
+        }
+      }
+    };
 
-    // Caso contrário, usa light como padrão
-    return 'light';
-  });
+    loadUserTheme();
+  }, [currentUser]);
 
-  const applyTheme = (themeToApply: ThemeOption) => {
+  useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
-    root.classList.add(themeToApply);
-  };
 
-  // Aplicar o tema quando ele mudar
-  useEffect(() => {
-    applyTheme(theme);
-    localStorage.setItem('codeflow-theme', theme);
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.classList.add(systemTheme);
+    } else {
+      root.classList.add(theme);
+    }
   }, [theme]);
 
-  const setTheme = (newTheme: ThemeOption) => {
-    setThemeState(newTheme);
-  };
-
-  const toggleTheme = () => {
-    setThemeState(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  const setTheme = async (newTheme: ThemeOption) => {
+    try {
+      setThemeState(newTheme);
+      localStorage.setItem('theme', newTheme);
+    } catch (error) {
+      console.error('Erro ao salvar configurações de tema:', error);
+    }
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

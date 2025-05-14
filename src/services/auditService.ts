@@ -1,4 +1,3 @@
-
 export type ActivityAction = 'create' | 'update' | 'delete' | 'complete' | 'assign' | 'login' | 'logout';
 export type ActivityEntity = 'task' | 'user' | 'team' | 'system';
 
@@ -63,6 +62,75 @@ const mockActivities: AuditActivity[] = [
     action: 'login',
     entity: 'system',
     details: 'Realizou login no sistema'
+  },
+  {
+    id: 'act-6',
+    userId: 'user-5',
+    userEmail: 'designer@example.com',
+    timestamp: new Date(Date.now() - 7200000), // 2 horas atrás
+    action: 'create',
+    entity: 'team',
+    entityId: 'mock-team-1',
+    details: 'Criou a equipe "Design e UX"'
+  },
+  {
+    id: 'act-7',
+    userId: 'user-6',
+    userEmail: 'qa@example.com',
+    timestamp: new Date(Date.now() - 5400000), // 1.5 horas atrás
+    action: 'update',
+    entity: 'user',
+    entityId: 'mock-user-1',
+    details: 'Atualizou o perfil do usuário Maria Santos'
+  },
+  {
+    id: 'act-8',
+    userId: 'user-7',
+    userEmail: 'devops@example.com',
+    timestamp: new Date(Date.now() - 4200000), // 1.2 horas atrás
+    action: 'delete',
+    entity: 'task',
+    entityId: 'mock-task-5',
+    details: 'Excluiu a tarefa "Configurar ambiente de desenvolvimento"'
+  },
+  {
+    id: 'act-9',
+    userId: 'user-8',
+    userEmail: 'product@example.com',
+    timestamp: new Date(Date.now() - 3600000), // 1 hora atrás
+    action: 'create',
+    entity: 'task',
+    entityId: 'mock-task-6',
+    details: 'Criou a tarefa "Definir roadmap do produto"'
+  },
+  {
+    id: 'act-10',
+    userId: 'user-9',
+    userEmail: 'support@example.com',
+    timestamp: new Date(Date.now() - 2400000), // 40 minutos atrás
+    action: 'logout',
+    entity: 'system',
+    details: 'Realizou logout do sistema'
+  },
+  {
+    id: 'act-11',
+    userId: 'user-10',
+    userEmail: 'analyst@example.com',
+    timestamp: new Date(Date.now() - 1200000), // 20 minutos atrás
+    action: 'update',
+    entity: 'team',
+    entityId: 'mock-team-2',
+    details: 'Atualizou os membros da equipe "Análise de Dados"'
+  },
+  {
+    id: 'act-12',
+    userId: 'user-11',
+    userEmail: 'security@example.com',
+    timestamp: new Date(Date.now() - 600000), // 10 minutos atrás
+    action: 'create',
+    entity: 'user',
+    entityId: 'mock-user-2',
+    details: 'Criou novo usuário com perfil de segurança'
   }
 ];
 
@@ -94,10 +162,10 @@ export const logActivity = async (
     entityId,
     details
   };
-  
+
   // Em uma implementação real, isso enviaria para o backend
   console.log('Atividade registrada:', newActivity);
-  
+
   // Adicionamos ao array de mock para simular a persistência
   mockActivities.push(newActivity);
 };

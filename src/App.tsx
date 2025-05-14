@@ -20,6 +20,11 @@ import Reports from "./pages/Reports";
 import AuditLogs from "./pages/AuditLogs";
 import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
+import Unauthorized from "./pages/Unauthorized";
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Careers from './pages/Careers';
+import { Toaster } from "@/components/ui/sonner";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -36,10 +41,10 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Layout for auth pages (login/register)
+// Layout component for auth pages
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       {children}
     </div>
   );
@@ -52,6 +57,7 @@ const App = () => (
         <ThemeProvider>
           <LanguageProvider>
             <TooltipProvider>
+              <Toaster />
               <Routes>
                 {/* Public home page */}
                 <Route path="/" element={<Home />} />
@@ -67,6 +73,10 @@ const App = () => (
                     <Register />
                   </AuthLayout>
                 } />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/careers" element={<Careers />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
 
                 {/* Protected routes with AuthenticatedLayout */}
                 <Route
@@ -161,9 +171,7 @@ const App = () => (
                 />
 
                 {/* 404 page */}
-                <Route path="*" element={
-                  <NotFound />
-                } />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </TooltipProvider>
           </LanguageProvider>

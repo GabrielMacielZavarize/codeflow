@@ -8,7 +8,8 @@ import {
   onAuthStateChanged,
   User,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  updateProfile
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
@@ -30,11 +31,19 @@ export const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
 // Função para registrar usuário com email e senha
-export const registerWithEmailAndPassword = async (email: string, password: string) => {
+export const registerWithEmailAndPassword = async (name: string, email: string, password: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return { user: userCredential.user, error: null };
+    const user = userCredential.user;
+
+    // Update user profile with name
+    await updateProfile(user, {
+      displayName: name
+    });
+
+    return { user, error: null };
   } catch (error: any) {
+    console.error('Error registering user:', error);
     return { user: null, error: error.message };
   }
 };

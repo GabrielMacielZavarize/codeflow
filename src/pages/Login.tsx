@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/sonner';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ArrowLeft } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +22,6 @@ const Login = () => {
   const { currentUser } = useAuth();
   const { t } = useLanguage();
 
-  // Redirect if user is already logged in
   useEffect(() => {
     if (currentUser) {
       navigate('/dashboard', { replace: true });
@@ -56,14 +56,20 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
-    const { user, error } = await loginWithGoogle();
-    setGoogleLoading(false);
 
-    if (user) {
-      toast.success(t.login.success);
-      navigate('/dashboard', { replace: true });
-    } else {
-      toast.error(error || t.login.error);
+    try {
+      const { user, error } = await loginWithGoogle();
+
+      if (user) {
+        toast.success(t.login.success);
+        navigate('/dashboard', { replace: true });
+      } else {
+        toast.error(error || t.login.error);
+      }
+    } catch (error) {
+      toast.error(t.login.error);
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -71,42 +77,52 @@ const Login = () => {
     e.preventDefault();
 
     if (!email) {
-      toast.error(t.resetPassword.error);
+      toast.error(t.login.error);
       return;
     }
 
     setLoading(true);
-    const { success, error } = await resetPassword(email);
-    setLoading(false);
 
-    if (success) {
-      toast.success(t.resetPassword.success);
-      setResetMode(false);
-    } else {
-      toast.error(error || t.resetPassword.error);
+    try {
+      const { success, error } = await resetPassword(email);
+
+      if (success) {
+        toast.success(t.resetPassword.success);
+        setResetMode(false);
+      } else {
+        toast.error(error || t.resetPassword.error);
+      }
+    } catch (error) {
+      toast.error(t.resetPassword.error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-primary dark:text-white">CodeFlow Solutions</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400"></p>
-        </div>
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="container px-4 py-8 sm:px-8">
+        <Button variant="ghost" asChild className="mb-8">
+          <Link to="/" className="flex items-center gap-2">
+            <ArrowLeft size={20} />
+            Voltar para Home
+          </Link>
+        </Button>
 
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
-          <CardHeader className="text-center">
-            <CardTitle className="dark:text-white text-2xl">{resetMode ? t.resetPassword.title : t.login.title}</CardTitle>
-            <CardDescription className="dark:text-gray-400">
-              {resetMode
-                ? t.resetPassword.description
-                : t.login.description
-              }
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {!resetMode && (
+        <div className="max-w-md mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold text-primary dark:text-primary-foreground">CodeFlow Solutions</h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">{t.login.description}</p>
+          </div>
+
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="text-center">
+              <CardTitle className="dark:text-white text-2xl">{t.login.title}</CardTitle>
+              <CardDescription className="dark:text-gray-400">
+                {t.login.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <Button
                 onClick={handleGoogleLogin}
                 className="w-full mb-4 bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
@@ -118,9 +134,7 @@ const Login = () => {
                 </svg>
                 {googleLoading ? t.login.processing : t.login.googleButton}
               </Button>
-            )}
 
-            {!resetMode && (
               <div className="relative my-4">
                 <Separator className="dark:bg-gray-700" />
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -129,79 +143,76 @@ const Login = () => {
                   </span>
                 </div>
               </div>
-            )}
 
-            <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="dark:text-gray-200">{t.login.email}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-
-              {!resetMode && (
+              <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="dark:text-gray-200">{t.login.password}</Label>
-                    <button
-                      type="button"
-                      onClick={() => setResetMode(true)}
-                      className="text-xs text-primary hover:underline dark:text-primary-foreground"
-                    >
-                      {t.login.forgotPassword}
-                    </button>
-                  </div>
+                  <Label htmlFor="email" className="dark:text-gray-200">{t.login.email}</Label>
                   <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
-              )}
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading
-                  ? t.login.processing
-                  : resetMode
-                    ? t.resetPassword.submitButton
-                    : t.login.submitButton
-                }
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            {resetMode ? (
-              <Button
-                variant="ghost"
-                onClick={() => setResetMode(false)}
-                className="w-full"
-              >
-                {t.resetPassword.backToLogin}
-              </Button>
-            ) : (
-              <div className="text-center text-sm">
-                <span className="text-gray-600 dark:text-gray-400">{t.login.noAccount} </span>
-                <Link to="/register" className="text-primary hover:underline dark:text-primary-foreground">
-                  {t.login.register}
-                </Link>
-              </div>
-            )}
-          </CardFooter>
-        </Card>
+                {!resetMode && (
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="dark:text-gray-200">{t.login.password}</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                )}
+
+                {!resetMode && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="px-0 dark:text-gray-400"
+                    onClick={() => setResetMode(true)}
+                  >
+                    {t.login.forgotPassword}
+                  </Button>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading || googleLoading}
+                >
+                  {loading ? t.login.processing : resetMode ? t.resetPassword.submitButton : t.login.submitButton}
+                </Button>
+              </form>
+            </CardContent>
+            <CardFooter className="flex justify-center">
+              {resetMode ? (
+                <Button
+                  type="button"
+                  variant="link"
+                  className="px-0 dark:text-gray-400"
+                  onClick={() => setResetMode(false)}
+                >
+                  {t.resetPassword.backToLogin}
+                </Button>
+              ) : (
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t.login.noAccount}{' '}
+                  <Link to="/register" className="text-primary hover:underline dark:text-primary-foreground">
+                    {t.login.register}
+                  </Link>
+                </p>
+              )}
+            </CardFooter>
+          </Card>
+        </div>
       </div>
     </div>
   );

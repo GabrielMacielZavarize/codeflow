@@ -1,52 +1,78 @@
-
 // Interface para membros da equipe
 export interface TeamMember {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: string;
-  avatar?: string;
-  tasks?: number;
-  joinedAt: Date;
+  avatar: string;
+  tasks: number;
+  joinDate: Date;
+  skills: string[];
+  isNew: boolean;
+  bio: string;
 }
 
 // Mock de membros da equipe
 const mockTeamMembers: TeamMember[] = [
   {
-    id: 'user-1',
-    name: 'Ana Silva',
-    email: 'ana.silva@codeflow.com',
-    role: 'Desenvolvedora Frontend',
-    avatar: 'https://i.pravatar.cc/150?img=1',
-    tasks: 8,
-    joinedAt: new Date(2023, 2, 15)
-  },
-  {
-    id: 'user-2',
-    name: 'Carlos Mendes',
-    email: 'carlos.mendes@codeflow.com',
-    role: 'Desenvolvedor Backend',
-    avatar: 'https://i.pravatar.cc/150?img=3',
-    tasks: 12,
-    joinedAt: new Date(2023, 0, 10)
-  },
-  {
-    id: 'user-3',
-    name: 'Juliana Costa',
-    email: 'juliana.costa@codeflow.com',
-    role: 'UX/UI Designer',
-    avatar: 'https://i.pravatar.cc/150?img=5',
+    id: 1,
+    name: 'Gabriel M.',
+    role: 'Desenvolvedor Frontend',
     tasks: 5,
-    joinedAt: new Date(2023, 4, 22)
+    isNew: true,
+    joinDate: new Date('2024-03-15'),
+    avatar: 'https://avatars.githubusercontent.com/u/12345678',
+    email: 'gabrielmzavarize@gmail.com',
+    bio: 'Desenvolvedor Frontend apaixonado por criar interfaces modernas e intuitivas. Especialista em React, TypeScript e UI/UX.',
+    skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'UI/UX']
   },
   {
-    id: 'user-4',
-    name: 'Rafael Almeida',
-    email: 'rafael.almeida@codeflow.com',
-    role: 'DevOps Engineer',
-    avatar: 'https://i.pravatar.cc/150?img=7',
+    id: 2,
+    name: 'Pedro H.',
+    role: 'Desenvolvedor Backend',
+    tasks: 3,
+    isNew: false,
+    joinDate: new Date('2024-02-01'),
+    avatar: 'https://github.com/pedrohenrique.png',
+    email: 'pedro.henrique@codeflow.com',
+    bio: 'Desenvolvedor Backend com foco em arquitetura de sistemas escaláveis. Experiência em Node.js, Python e arquitetura de microsserviços.',
+    skills: ['Node.js', 'Python', 'Docker', 'AWS', 'MongoDB']
+  },
+  {
+    id: 3,
+    name: 'Wilian V.',
+    role: 'Designer',
+    tasks: 4,
+    isNew: true,
+    joinDate: new Date('2024-03-10'),
+    avatar: 'https://avatars.githubusercontent.com/u/87654321',
+    email: 'wilian.viana@codeflow.com',
+    bio: 'Designer criativo com foco em experiência do usuário e interfaces modernas. Especialista em Figma e design systems.',
+    skills: ['Figma', 'UI Design', 'UX Research', 'Design Systems', 'Prototipagem']
+  },
+  {
+    id: 4,
+    name: 'Maria S.',
+    role: 'Product Manager',
+    tasks: 2,
+    isNew: false,
+    joinDate: new Date('2024-01-15'),
+    avatar: 'https://github.com/mariasilva.png',
+    email: 'maria.silva@codeflow.com',
+    bio: 'Product Manager com experiência em gestão de produtos digitais e metodologias ágeis. Foco em entregar valor ao usuário final.',
+    skills: ['Product Strategy', 'Agile', 'User Research', 'Data Analysis', 'Stakeholder Management']
+  },
+  {
+    id: 5,
+    name: 'João P.',
+    role: 'QA Engineer',
     tasks: 6,
-    joinedAt: new Date(2023, 3, 5)
+    isNew: false,
+    joinDate: new Date('2024-02-20'),
+    avatar: 'https://github.com/joaopedro.png',
+    email: 'joao.pedro@codeflow.com',
+    bio: 'QA Engineer especializado em testes automatizados e garantia de qualidade. Experiência em Cypress, Jest e metodologias de teste.',
+    skills: ['Testes Automatizados', 'Cypress', 'Jest', 'CI/CD', 'Qualidade de Software']
   }
 ];
 
@@ -64,10 +90,10 @@ export const getTeamMemberById = async (id: string): Promise<TeamMember | null> 
 export const addTeamMember = async (member: Omit<TeamMember, 'id'>): Promise<TeamMember> => {
   const newMember = {
     ...member,
-    id: `user-${mockTeamMembers.length + 1}`,
+    id: mockTeamMembers.length + 1,
     tasks: 0
   };
-  
+
   console.log('Membro adicionado (mock):', newMember);
   return newMember;
 };

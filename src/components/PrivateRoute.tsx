@@ -14,9 +14,8 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { t } = useLanguage();
 
   useEffect(() => {
-    // Only redirect if not loading and no user
     if (!loading && !currentUser) {
-      toast.error(t.general.error);
+      toast.error(t.login.error);
       navigate('/login', { replace: true });
     }
   }, [currentUser, loading, navigate, t]);

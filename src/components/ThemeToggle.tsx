@@ -3,9 +3,11 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Sun, Moon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const { t } = useLanguage();
 
   const getThemeIcon = () => {
     switch (theme) {
@@ -21,12 +23,17 @@ const ThemeToggle = () => {
   const getTooltipText = () => {
     switch (theme) {
       case 'light':
-        return 'Alternar para modo escuro';
+        return t.settings.appearance.dark;
       case 'dark':
-        return 'Alternar para modo claro';
+        return t.settings.appearance.light;
       default:
-        return 'Alternar tema';
+        return t.settings.appearance.theme;
     }
+  };
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
   };
 
   return (
@@ -39,7 +46,7 @@ const ThemeToggle = () => {
           className="w-9 h-9 text-gray-700 dark:text-gray-300"
         >
           {getThemeIcon()}
-          <span className="sr-only">Alternar tema</span>
+          <span className="sr-only">{t.settings.appearance.theme}</span>
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom">

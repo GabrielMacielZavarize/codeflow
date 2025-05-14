@@ -1,20 +1,19 @@
-
 import { db } from './firebase';
 import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 
-export type Priority = 'low' | 'medium' | 'high';
+export type Priority = 'high' | 'medium' | 'low';
 export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'canceled';
 
 export interface Task {
   id: string;
   title: string;
   description: string;
+  status: 'pending' | 'in_progress' | 'completed';
   priority: Priority;
+  dueDate: Date;
   createdAt: Date;
-  userId: string;
-  status?: TaskStatus;
-  assignedTo?: string;
-  dueDate?: Date;
+  assignee?: string;
+  progress?: number;
 }
 
 // Mock de tarefas para desenvolvimento inicial
@@ -78,13 +77,19 @@ export const getTasks = async (userId: string): Promise<Task[]> => {
       .map(doc => ({ id: doc.id, ...doc.data() } as Task))
       .filter(task => task.userId === userId);
     */
-    
+
     // Versão mock para desenvolvimento
-    return mockTasks.map((task, index) => ({
+    const mockTasksWithIds = mockTasks.map((task, index) => ({
       ...task,
       id: `mock-task-${index}`,
-      userId
+      dueDate: new Date(task.dueDate),
+      createdAt: new Date(task.createdAt),
+      assignee: task.assignee || 'user-1',
+      progress: task.progress || 0
     }));
+
+    console.log('Mock tasks:', mockTasksWithIds);
+    return mockTasksWithIds;
   } catch (error) {
     console.error('Erro ao buscar tarefas:', error);
     return [];
@@ -110,7 +115,7 @@ export const addTask = async (task: Omit<Task, 'id'>): Promise<Task | null> => {
     const docRef = await addDoc(collection(db, 'tasks'), task);
     return { ...task, id: docRef.id };
     */
-    
+
     // Versão mock para desenvolvimento
     console.log('Task adicionada (mock):', task);
     return { ...task, id: `mock-task-${new Date().getTime()}` };
@@ -126,7 +131,7 @@ export const updateTask = async (id: string, taskData: Partial<Task>): Promise<b
     /*
     await updateDoc(doc(db, 'tasks', id), taskData);
     */
-    
+
     // Versão mock para desenvolvimento
     console.log(`Task ${id} atualizada (mock):`, taskData);
     return true;
@@ -142,7 +147,7 @@ export const deleteTask = async (id: string): Promise<boolean> => {
     /*
     await deleteDoc(doc(db, 'tasks', id));
     */
-    
+
     // Versão mock para desenvolvimento
     console.log(`Task ${id} removida (mock)`);
     return true;

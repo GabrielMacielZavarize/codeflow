@@ -196,65 +196,65 @@ const Home = () => {
             <div className="flex flex-col items-center">
               <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
+                  src="https://github.com/GabrielMacielZavarize.png"
                   alt="Gabriel Maciel"
                   className="w-full h-full object-cover"
                 />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Gabriel Maciel</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Desenvolvedor</p>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Desenvolvedor FrontEnd</p>
             </div>
 
             {/* Pedro Henrique */}
             <div className="flex flex-col items-center">
               <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
+                  src="https://github.com/PedroHarter.png"
                   alt="Pedro Henrique"
                   className="w-full h-full object-cover"
                 />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Pedro Henrique</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Desenvolvedor</p>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Desenvolvedor Backend</p>
             </div>
 
             {/* Wilian Vieira */}
             <div className="flex flex-col items-center">
               <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
+                  src="https://github.com/WilianVieiraF.png"
                   alt="Wilian Vieira"
                   className="w-full h-full object-cover"
                 />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Wilian Vieira</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Desenvolvedor</p>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Designer</p>
             </div>
 
             {/* Alexandre */}
             <div className="flex flex-col items-center">
               <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
+                  src="https://github.com/xandetds.png"
                   alt="Alexandre"
                   className="w-full h-full object-cover"
                 />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Alexandre</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Desenvolvedor</p>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Product Manager</p>
             </div>
 
             {/* Pedro Canto */}
             <div className="flex flex-col items-center">
               <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
+                  src="https://github.com/PedroCanto.png"
                   alt="Pedro Canto"
                   className="w-full h-full object-cover"
                 />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Pedro Canto</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Desenvolvedor</p>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">QA Engineer</p>
             </div>
           </div>
         </div>

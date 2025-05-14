@@ -111,7 +111,7 @@ const Login = () => {
 
         <div className="max-w-md mx-auto">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-primary dark:text-primary-foreground">CodeFlow Solutions</h1>
+            <h1 className="text-3xl font-bold text-primary dark:text-white">CodeFlow Solutions</h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400">{t.login.description}</p>
           </div>
 

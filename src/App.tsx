@@ -1,15 +1,12 @@
 import React from "react";
-import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import PrivateRoute from "./components/PrivateRoute";
-import Sidebar from "./components/Sidebar";
-import MenuBar from "./components/MenuBar";
+import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -27,24 +24,19 @@ import NotFound from "./pages/NotFound";
 // Create a client
 const queryClient = new QueryClient();
 
-// Layout component that includes Sidebar only for authenticated routes
+// Layout component for authenticated routes
 const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <SidebarProvider>
-      <div className="flex h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-hidden">
-        <Sidebar />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <MenuBar />
-          <main className="flex-1 overflow-auto p-4 sm:p-6">
-            {children}
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navbar />
+      <main className="container mx-auto p-4 sm:p-6">
+        {children}
+      </main>
+    </div>
   );
 };
 
-// Layout for auth pages (login/register) without Sidebar or MenuBar
+// Layout for auth pages (login/register)
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 flex items-center justify-center">
@@ -60,7 +52,6 @@ const App = () => (
         <ThemeProvider>
           <LanguageProvider>
             <TooltipProvider>
-              <Toaster />
               <Routes>
                 {/* Public home page */}
                 <Route path="/" element={<Home />} />
@@ -76,99 +67,99 @@ const App = () => (
                     <Register />
                   </AuthLayout>
                 } />
-                
+
                 {/* Protected routes with AuthenticatedLayout */}
-                <Route 
-                  path="/dashboard" 
+                <Route
+                  path="/dashboard"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <Dashboard />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/analytics" 
+                <Route
+                  path="/analytics"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <Analytics />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/task/:id" 
+                <Route
+                  path="/task/:id"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <TaskDetails />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/team" 
+                <Route
+                  path="/team"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <Team />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/notifications" 
+                <Route
+                  path="/notifications"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <Notifications />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/settings" 
+                <Route
+                  path="/settings"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <Settings />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/reports" 
+                <Route
+                  path="/reports"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <Reports />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/audit-logs" 
+                <Route
+                  path="/audit-logs"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <AuditLogs />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/calendar" 
+                <Route
+                  path="/calendar"
                   element={
                     <PrivateRoute>
                       <AuthenticatedLayout>
                         <Calendar />
                       </AuthenticatedLayout>
                     </PrivateRoute>
-                  } 
+                  }
                 />
-                
+
                 {/* 404 page */}
                 <Route path="*" element={
                   <NotFound />

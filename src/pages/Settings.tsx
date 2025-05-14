@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { UserSettings, getUserSettings, updateUserSettings, ThemeOption, LanguageOption } from '../services/settingsService';
@@ -9,21 +8,20 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings as SettingsIcon, Check } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Settings = () => {
   const { currentUser } = useAuth();
-  const { toast } = useToast();
   const { theme: currentTheme, setTheme } = useTheme();
   const { language: currentLanguage, setLanguage, t } = useLanguage();
-  
+
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  
+
   useEffect(() => {
     const loadSettings = async () => {
       if (currentUser) {
@@ -33,26 +31,22 @@ const Settings = () => {
           setSettings(userSettings);
         } catch (error) {
           console.error('Erro ao carregar configurações:', error);
-          toast({
-            title: t.general.error,
-            description: t.settings.saveError,
-            variant: 'destructive'
-          });
+          toast.error(t.settings.saveError);
         } finally {
           setIsLoading(false);
         }
       }
     };
-    
+
     loadSettings();
-  }, [currentUser, toast, t]);
-  
+  }, [currentUser, t]);
+
   const handleThemeChange = async (theme: string) => {
     if (!settings || !currentUser) return;
-    
+
     // Aplicar o tema imediatamente
     setTheme(theme as ThemeOption);
-    
+
     setSettings(prevSettings => {
       if (!prevSettings) return null;
       return {
@@ -60,16 +54,16 @@ const Settings = () => {
         theme: theme as ThemeOption
       };
     });
-    
+
     setHasChanges(true);
   };
-  
+
   const handleLanguageChange = async (language: string) => {
     if (!settings || !currentUser) return;
-    
+
     // Aplicar o idioma imediatamente
     await setLanguage(language as LanguageOption);
-    
+
     setSettings(prevSettings => {
       if (!prevSettings) return null;
       return {
@@ -77,13 +71,13 @@ const Settings = () => {
         language: language as LanguageOption
       };
     });
-    
+
     setHasChanges(true);
   };
-  
+
   const handleNotificationToggle = async (key: keyof UserSettings, value: boolean) => {
     if (!settings || !currentUser) return;
-    
+
     setSettings(prevSettings => {
       if (!prevSettings) return null;
       return {
@@ -91,33 +85,26 @@ const Settings = () => {
         [key]: value
       };
     });
-    
+
     setHasChanges(true);
   };
-  
+
   const handleSaveSettings = async () => {
     if (!settings || !currentUser) return;
-    
+
     setIsSaving(true);
     try {
       await updateUserSettings(currentUser.uid, settings);
-      toast({
-        title: t.general.success,
-        description: t.settings.saveSuccess
-      });
+      toast.success(t.settings.saveSuccess);
       setHasChanges(false);
     } catch (error) {
       console.error('Erro ao salvar configurações:', error);
-      toast({
-        title: t.general.error,
-        description: t.settings.saveError,
-        variant: 'destructive'
-      });
+      toast.error(t.settings.saveError);
     } finally {
       setIsSaving(false);
     }
   };
-  
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -128,7 +115,7 @@ const Settings = () => {
       </div>
     );
   }
-  
+
   if (!settings) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -143,7 +130,7 @@ const Settings = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
@@ -152,7 +139,7 @@ const Settings = () => {
           {t.settings.subtitle}
         </p>
       </div>
-      
+
       <Tabs defaultValue="account" className="space-y-6">
         <div className="border-b overflow-x-auto">
           <TabsList className="w-full sm:w-auto flex">
@@ -167,7 +154,7 @@ const Settings = () => {
             </TabsTrigger>
           </TabsList>
         </div>
-        
+
         <TabsContent value="account">
           <Card>
             <CardHeader>
@@ -181,11 +168,11 @@ const Settings = () => {
                 <Label>{t.settings.account.email}</Label>
                 <p className="text-gray-700 dark:text-gray-300">{currentUser?.email || '-'}</p>
               </div>
-              
+
               <div className="space-y-4">
                 <Label>{t.settings.language.title}</Label>
-                <RadioGroup 
-                  value={settings.language} 
+                <RadioGroup
+                  value={settings.language}
                   onValueChange={handleLanguageChange}
                   className="flex flex-col space-y-2"
                 >
@@ -215,7 +202,7 @@ const Settings = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="appearance">
           <Card>
             <CardHeader>
@@ -227,8 +214,8 @@ const Settings = () => {
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <Label>{t.settings.appearance.theme}</Label>
-                <RadioGroup 
-                  value={settings.theme} 
+                <RadioGroup
+                  value={settings.theme}
                   onValueChange={handleThemeChange}
                   className="flex flex-col space-y-2"
                 >
@@ -258,7 +245,7 @@ const Settings = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
@@ -273,43 +260,43 @@ const Settings = () => {
                   <Label htmlFor="email-notifications" className="text-base">{t.settings.notifications.email.title}</Label>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t.settings.notifications.email.description}</p>
                 </div>
-                <Switch 
+                <Switch
                   id="email-notifications"
                   checked={settings.emailNotifications}
                   onCheckedChange={(checked) => handleNotificationToggle('emailNotifications', checked)}
                 />
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div>
                   <Label htmlFor="push-notifications" className="text-base">{t.settings.notifications.push.title}</Label>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t.settings.notifications.push.description}</p>
                 </div>
-                <Switch 
+                <Switch
                   id="push-notifications"
                   checked={settings.pushNotifications}
                   onCheckedChange={(checked) => handleNotificationToggle('pushNotifications', checked)}
                 />
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div>
                   <Label htmlFor="weekly-digest" className="text-base">{t.settings.notifications.digest.title}</Label>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t.settings.notifications.digest.description}</p>
                 </div>
-                <Switch 
+                <Switch
                   id="weekly-digest"
                   checked={settings.weeklyDigest}
                   onCheckedChange={(checked) => handleNotificationToggle('weeklyDigest', checked)}
                 />
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div>
                   <Label htmlFor="task-reminders" className="text-base">{t.settings.notifications.reminders.title}</Label>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t.settings.notifications.reminders.description}</p>
                 </div>
-                <Switch 
+                <Switch
                   id="task-reminders"
                   checked={settings.taskReminders}
                   onCheckedChange={(checked) => handleNotificationToggle('taskReminders', checked)}
@@ -319,10 +306,10 @@ const Settings = () => {
           </Card>
         </TabsContent>
       </Tabs>
-      
+
       <div className="flex justify-end mt-8">
-        <Button 
-          onClick={handleSaveSettings} 
+        <Button
+          onClick={handleSaveSettings}
           disabled={isSaving || !hasChanges}
           className={`${hasChanges ? 'animate-pulse' : ''}`}
         >

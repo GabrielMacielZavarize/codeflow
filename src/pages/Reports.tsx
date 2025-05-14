@@ -1,19 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { MonthlyTasksData, TasksByMemberData, getMonthlyTasksReport, getTasksByMemberReport, exportReport } from '../services/reportsService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  Title, 
-  Tooltip, 
-  Legend, 
-  ArcElement 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
 } from 'chart.js';
 import { Bar, Pie } from 'react-chartjs-2';
 import { FileText } from 'lucide-react';
@@ -22,11 +21,11 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 // Registrar os componentes necessários do Chart.js
 ChartJS.register(
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  Title, 
-  Tooltip, 
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
   Legend,
   ArcElement
 );
@@ -35,13 +34,13 @@ const Reports = () => {
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
-  
+
   const [monthlyData, setMonthlyData] = useState<MonthlyTasksData[]>([]);
   const [memberData, setMemberData] = useState<TasksByMemberData[]>([]);
   const [exportFormat, setExportFormat] = useState<'pdf' | 'csv'>('pdf');
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
-  
+
   useEffect(() => {
     const loadReportsData = async () => {
       setIsLoading(true);
@@ -50,7 +49,7 @@ const Reports = () => {
           getMonthlyTasksReport(),
           getTasksByMemberReport()
         ]);
-        
+
         setMonthlyData(monthlyReportData);
         setMemberData(memberReportData);
       } catch (error) {
@@ -64,15 +63,15 @@ const Reports = () => {
         setIsLoading(false);
       }
     };
-    
+
     loadReportsData();
   }, [toast, t]);
-  
+
   const handleExportReport = async () => {
     setIsExporting(true);
     try {
       const success = await exportReport(exportFormat);
-      
+
       if (success) {
         toast({
           title: t.general.success,
@@ -90,7 +89,7 @@ const Reports = () => {
       setIsExporting(false);
     }
   };
-  
+
   // Configuração do gráfico de barras
   const barChartData = {
     labels: monthlyData.map(item => item.month),
@@ -104,7 +103,7 @@ const Reports = () => {
       }
     ],
   };
-  
+
   const barChartOptions = {
     responsive: true,
     plugins: {
@@ -122,7 +121,7 @@ const Reports = () => {
       },
     },
   };
-  
+
   // Configuração do gráfico de pizza
   const pieChartData = {
     labels: memberData.map(item => item.name),
@@ -135,7 +134,7 @@ const Reports = () => {
       },
     ],
   };
-  
+
   const pieChartOptions = {
     responsive: true,
     plugins: {
@@ -148,19 +147,19 @@ const Reports = () => {
       },
     },
   };
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold">{t.reports.title}</h1>
           <p className="text-gray-600 dark:text-gray-400">
             {t.reports.description}
           </p>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 w-full sm:w-auto">
           <Select value={exportFormat} onValueChange={(value: 'pdf' | 'csv') => setExportFormat(value)}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-full sm:w-32">
               <SelectValue placeholder="Formato" />
             </SelectTrigger>
             <SelectContent>
@@ -168,13 +167,13 @@ const Reports = () => {
               <SelectItem value="csv">CSV</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={handleExportReport} disabled={isExporting}>
+          <Button onClick={handleExportReport} disabled={isExporting} className="w-full sm:w-auto">
             <FileText className="h-4 w-4 mr-2" />
             {isExporting ? t.reports.exporting : t.reports.export}
           </Button>
         </div>
       </div>
-      
+
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -195,7 +194,7 @@ const Reports = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>{t.reports.memberTasks}</CardTitle>

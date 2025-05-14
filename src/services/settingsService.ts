@@ -1,5 +1,4 @@
-
-export type ThemeOption = 'light' | 'dark' | 'system';
+export type ThemeOption = 'light' | 'dark';
 export type LanguageOption = 'pt-BR' | 'en-US' | 'es';
 
 export interface UserSettings {

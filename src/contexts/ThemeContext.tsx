@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { ThemeOption } from '../services/settingsService';
 
@@ -22,26 +21,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setThemeState] = useState<ThemeOption>(() => {
     // Tenta recuperar o tema do localStorage
     const savedTheme = localStorage.getItem('codeflow-theme');
-    
-    // Verifica se o tema salvo é válido (light, dark ou system)
-    if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') {
+
+    // Verifica se o tema salvo é válido (light ou dark)
+    if (savedTheme === 'light' || savedTheme === 'dark') {
       return savedTheme as ThemeOption;
     }
-    
-    // Caso contrário, usa a preferência do sistema
-    return 'system';
+
+    // Caso contrário, usa light como padrão
+    return 'light';
   });
-  
+
   const applyTheme = (themeToApply: ThemeOption) => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
-    
-    if (themeToApply === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(themeToApply);
-    }
+    root.classList.add(themeToApply);
   };
 
   // Aplicar o tema quando ele mudar
@@ -50,30 +43,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('codeflow-theme', theme);
   }, [theme]);
 
-  // Observar mudanças na preferência do sistema
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = () => {
-      if (theme === 'system') {
-        applyTheme('system');
-      }
-    };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
-
   const setTheme = (newTheme: ThemeOption) => {
     setThemeState(newTheme);
   };
 
   const toggleTheme = () => {
-    setThemeState(prevTheme => {
-      if (prevTheme === 'light') return 'dark';
-      if (prevTheme === 'dark') return 'system';
-      return 'light';
-    });
+    setThemeState(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   };
 
   return (

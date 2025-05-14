@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Notification, getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/notificationService';
@@ -8,14 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Bell } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 
 const Notifications = () => {
   const { currentUser } = useAuth();
-  const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     const loadNotifications = async () => {
       if (currentUser) {
@@ -25,70 +23,52 @@ const Notifications = () => {
           setNotifications(fetchedNotifications);
         } catch (error) {
           console.error('Erro ao carregar notificações:', error);
-          toast({
-            title: 'Erro ao carregar notificações',
-            description: 'Não foi possível obter suas notificações.',
-            variant: 'destructive'
-          });
+          toast.error('Não foi possível obter suas notificações.');
         } finally {
           setIsLoading(false);
         }
       }
     };
-    
+
     loadNotifications();
-  }, [currentUser, toast]);
-  
+  }, [currentUser]);
+
   const handleMarkAsRead = async (id: string) => {
     try {
       const success = await markNotificationAsRead(id);
-      
+
       if (success) {
-        setNotifications(notifications.map(notification => 
-          notification.id === id 
-            ? { ...notification, read: true } 
+        setNotifications(notifications.map(notification =>
+          notification.id === id
+            ? { ...notification, read: true }
             : notification
         ));
-        
-        toast({
-          title: 'Notificação marcada como lida',
-          description: 'A notificação foi atualizada com sucesso.'
-        });
+
+        toast.success('A notificação foi atualizada com sucesso.');
       }
     } catch (error) {
       console.error('Erro ao marcar notificação como lida:', error);
-      toast({
-        title: 'Erro ao atualizar',
-        description: 'Não foi possível marcar a notificação como lida.',
-        variant: 'destructive'
-      });
+      toast.error('Não foi possível marcar a notificação como lida.');
     }
   };
-  
+
   const handleMarkAllAsRead = async () => {
     if (!currentUser) return;
-    
+
     try {
       const success = await markAllNotificationsAsRead(currentUser.uid);
-      
+
       if (success) {
         setNotifications(notifications.map(notification => ({ ...notification, read: true })));
-        
-        toast({
-          title: 'Todas notificações lidas',
-          description: 'Todas as notificações foram marcadas como lidas.'
-        });
+
+        toast.success('Todas as notificações foram marcadas como lidas.');
       }
     } catch (error) {
       console.error('Erro ao marcar todas notificações como lidas:', error);
-      toast({
-        title: 'Erro ao atualizar',
-        description: 'Não foi possível marcar todas as notificações como lidas.',
-        variant: 'destructive'
-      });
+      toast.error('Não foi possível marcar todas as notificações como lidas.');
     }
   };
-  
+
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'task_assigned':
@@ -105,16 +85,16 @@ const Notifications = () => {
         return '🔔';
     }
   };
-  
+
   const getTimeAgo = (date: Date) => {
     return formatDistanceToNow(new Date(date), {
       addSuffix: true,
       locale: ptBR
     });
   };
-  
+
   const unreadCount = notifications.filter(n => !n.read).length;
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -124,14 +104,14 @@ const Notifications = () => {
             <Badge className="ml-3 bg-primary">{unreadCount} novas</Badge>
           )}
         </div>
-        
+
         {unreadCount > 0 && (
           <Button variant="outline" onClick={handleMarkAllAsRead}>
             Marcar todas como lidas
           </Button>
         )}
       </div>
-      
+
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -165,9 +145,9 @@ const Notifications = () => {
                 </div>
                 <div className="flex-shrink-0 ml-4">
                   {!notification.read && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleMarkAsRead(notification.id)}
                     >
                       Marcar como lida

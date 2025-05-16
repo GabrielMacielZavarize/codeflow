@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { getTasks, Task } from '../services/taskService';
+import { useAuth } from '@/contexts/AuthContext';
+import { getTasks, Task } from '@/services/taskService';
 import { getPieChartData, getBarChartData, getLineChartData } from '../services/analyticsService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,7 @@ const Analytics = () => {
 
       setIsLoading(true);
       try {
-        const fetchedTasks = await getTasks(currentUser.uid);
+        const fetchedTasks = await getTasks();
         setTasks(fetchedTasks);
       } catch (error) {
         console.error('Erro ao carregar tarefas:', error);

@@ -5,7 +5,7 @@ import {
     deleteDocument,
     queryDocuments
 } from './firestore';
-import { Timestamp, addDoc, collection } from 'firebase/firestore';
+import { Timestamp, addDoc, collection, onSnapshot, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from './config';
 
 export interface Comentario {
@@ -85,24 +85,30 @@ export const tarefasService = {
         }
     },
 
-    // Buscar todas as tarefas de um usuário
-    async buscarTarefasUsuario(userId: string) {
-        const tarefas = await queryDocuments(COLECAO_TAREFAS, 'userId', '==', userId) as any[];
-        return tarefas.map(tarefa => ({
-            ...tarefa,
-            dataCriacao: converterParaDate(tarefa.dataCriacao),
-            dataAtualizacao: converterParaDate(tarefa.dataAtualizacao),
-            dataInicio: converterParaDate(tarefa.dataInicio),
-            dataFim: converterParaDate(tarefa.dataFim),
-            comentarios: tarefa.comentarios?.map((comentario: any) => ({
+    // Buscar todas as tarefas
+    async buscarTodasTarefas() {
+        const q = query(
+            collection(db, COLECAO_TAREFAS),
+            orderBy('dataCriacao', 'desc')
+        );
+        const querySnapshot = await getDocs(q);
+        const tarefas = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            dataCriacao: doc.data().dataCriacao?.toDate(),
+            dataAtualizacao: doc.data().dataAtualizacao?.toDate(),
+            dataInicio: doc.data().dataInicio?.toDate(),
+            dataFim: doc.data().dataFim?.toDate(),
+            comentarios: doc.data().comentarios?.map((comentario: any) => ({
                 ...comentario,
-                dataCriacao: converterParaDate(comentario.dataCriacao),
+                dataCriacao: comentario.dataCriacao?.toDate(),
                 respostas: comentario.respostas?.map((resposta: any) => ({
                     ...resposta,
-                    dataCriacao: converterParaDate(resposta.dataCriacao)
+                    dataCriacao: resposta.dataCriacao?.toDate()
                 }))
-            }))
+            })) || []
         })) as Tarefa[];
+        return tarefas;
     },
 
     // Atualizar uma tarefa
@@ -166,8 +172,36 @@ export const tarefasService = {
     },
 
     // Buscar tarefas por status
-    async buscarTarefasPorStatus(userId: string, concluida: boolean) {
-        const tarefas = await queryDocuments(COLECAO_TAREFAS, 'userId', '==', userId) as Tarefa[];
-        return tarefas.filter(tarefa => tarefa.concluida === concluida);
+    async buscarTarefasPorStatus(concluida: boolean) {
+        const tarefas = await queryDocuments(COLECAO_TAREFAS, 'concluida', '==', concluida) as Tarefa[];
+        return tarefas;
+    },
+
+    // Obter tarefas em tempo real
+    obterTarefasEmTempoReal(callback: (tarefas: Tarefa[]) => void) {
+        const q = query(
+            collection(db, COLECAO_TAREFAS),
+            orderBy('dataCriacao', 'desc')
+        );
+
+        return onSnapshot(q, (snapshot) => {
+            const tarefas = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                dataCriacao: doc.data().dataCriacao?.toDate(),
+                dataAtualizacao: doc.data().dataAtualizacao?.toDate(),
+                dataInicio: doc.data().dataInicio?.toDate(),
+                dataFim: doc.data().dataFim?.toDate(),
+                comentarios: doc.data().comentarios?.map((comentario: any) => ({
+                    ...comentario,
+                    dataCriacao: comentario.dataCriacao?.toDate(),
+                    respostas: comentario.respostas?.map((resposta: any) => ({
+                        ...resposta,
+                        dataCriacao: resposta.dataCriacao?.toDate()
+                    }))
+                })) || []
+            })) as Tarefa[];
+            callback(tarefas);
+        });
     }
 }; 

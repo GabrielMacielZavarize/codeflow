@@ -13,6 +13,7 @@ import { tarefasService, Tarefa } from '@/lib/firebase/tarefas';
 import { onSnapshot, collection, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { TeamMemberCard } from '@/components/TeamMemberCard';
+import TeamMemberModal from '@/components/TeamMemberModal';
 
 const Team = () => {
   const { currentUser } = useAuth();
@@ -37,7 +38,7 @@ const Team = () => {
     if (!currentUser) return;
 
     const tarefasRef = collection(db, 'tarefas');
-    const q = query(tarefasRef, where('userId', '==', currentUser.uid));
+    const q = query(tarefasRef);
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const tarefasAtualizadas = snapshot.docs.map(doc => {
@@ -232,6 +233,12 @@ const Team = () => {
         isOpen={isAddMemberModalOpen}
         onClose={() => setIsAddMemberModalOpen(false)}
         onMemberAdded={handleAddMember}
+      />
+
+      <TeamMemberModal
+        member={selectedMember}
+        onClose={() => setSelectedMember(null)}
+        tasks={tasks.filter(task => task.responsavelId === selectedMember?.id)}
       />
     </div>
   );

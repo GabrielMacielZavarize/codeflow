@@ -69,13 +69,10 @@ const mockTasks: Omit<Task, 'id' | 'userId'>[] = [
 ];
 
 // Funções para gerenciar tarefas
-export const getTasks = async (userId: string): Promise<Task[]> => {
+export const getTasks = async (): Promise<Task[]> => {
   try {
     const tasksCollection = collection(db, 'tarefas');
-    const q = query(
-      tasksCollection,
-      where('userId', '==', userId)
-    );
+    const q = query(tasksCollection);
 
     const taskSnapshot = await getDocs(q);
     const tasks = taskSnapshot.docs.map(doc => {

@@ -121,30 +121,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (!currentUser) return;
 
-    const tarefasRef = collection(db, 'tarefas');
-    const q = query(tarefasRef, where('userId', '==', currentUser.uid));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const tarefasAtualizadas = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          dataCriacao: data.dataCriacao?.toDate?.() || new Date(),
-          dataAtualizacao: data.dataAtualizacao?.toDate?.() || new Date(),
-          dataInicio: data.dataInicio?.toDate?.() || new Date(),
-          dataFim: data.dataFim?.toDate?.() || new Date(),
-          comentarios: data.comentarios?.map((comentario: any) => ({
-            ...comentario,
-            dataCriacao: comentario.dataCriacao?.toDate?.() || new Date(),
-            respostas: comentario.respostas?.map((resposta: any) => ({
-              ...resposta,
-              dataCriacao: resposta.dataCriacao?.toDate?.() || new Date()
-            }))
-          })) || []
-        };
-      }) as Tarefa[];
-
+    const unsubscribe = tarefasService.obterTarefasEmTempoReal((tarefasAtualizadas) => {
       setTasks(tarefasAtualizadas);
       setIsLoading(false);
     });

@@ -69,6 +69,16 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
                                     </Badge>
                                 </div>
                             </div>
+                            {member.bio && (
+                                <p className="text-gray-600 dark:text-gray-300 mt-4">{member.bio}</p>
+                            )}
+                            <div className="flex flex-wrap gap-2 mt-4">
+                                {member.habilidades?.map((habilidade, index) => (
+                                    <Badge key={index} variant="secondary">
+                                        {habilidade}
+                                    </Badge>
+                                ))}
+                            </div>
                             <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                                 <div className="flex items-center gap-1">
                                     <Mail className="h-4 w-4" />

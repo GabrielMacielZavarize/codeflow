@@ -44,7 +44,7 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member, tasks, o
 
     return (
         <>
-            <Card className="w-full">
+            <Card className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" onClick={handleClick}>
                 <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                         <div className="flex items-center space-x-4">
@@ -57,7 +57,7 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member, tasks, o
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{member.cargo}</p>
                                 <div className="mt-1 flex items-center space-x-2">
                                     <Badge variant="outline">{member.status}</Badge>
-                                    <Badge variant="secondary">{member.tarefas} tarefas</Badge>
+                                    <Badge variant="secondary">{tarefasDoMembro.length} tarefas</Badge>
                                 </div>
                             </div>
                         </div>
@@ -65,7 +65,10 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member, tasks, o
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => setIsEditModalOpen(true)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsEditModalOpen(true);
+                                }}
                                 className="h-9 w-9"
                             >
                                 <Pencil className="h-4 w-4" />
@@ -73,7 +76,10 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member, tasks, o
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => onDelete(member.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete(member.id);
+                                }}
                                 className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                             >
                                 <Trash2 className="h-4 w-4" />

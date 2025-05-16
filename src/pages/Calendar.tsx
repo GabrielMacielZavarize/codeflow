@@ -54,7 +54,7 @@ const Calendar = () => {
 
     setLoading(true);
     const tarefasRef = collection(db, 'tarefas');
-    const q = query(tarefasRef, where('userId', '==', currentUser.uid));
+    const q = query(tarefasRef);
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const tarefasAtualizadas = snapshot.docs.map(doc => {

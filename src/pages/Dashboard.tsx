@@ -214,7 +214,7 @@ const Dashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white animate-slide-up">
-            {t.navigation.dashboard}
+            {t.dashboard.title}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1 animate-slide-up delay-100">
             {t.dashboard.description}
@@ -222,7 +222,7 @@ const Dashboard = () => {
         </div>
         <Button className="bg-primary hover:bg-primary/90 animate-slide-up delay-200 w-full sm:w-auto" onClick={() => setIsAddTaskModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          {t.tasks.addTask || "Nova Tarefa"}
+          {t.dashboard.addTask}
         </Button>
       </div>
 

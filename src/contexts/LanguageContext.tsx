@@ -18,7 +18,11 @@ const LanguageContext = createContext<LanguageContextType>({
 });
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<LanguageOption>(defaultLanguage);
+  const [language, setLanguageState] = useState<LanguageOption>(() => {
+    const savedLanguage = localStorage.getItem('language') as LanguageOption;
+    return savedLanguage || defaultLanguage;
+  });
+  const [translations, setTranslations] = useState(() => dictionaries[language]);
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -28,6 +32,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           const settings = await getUserSettings(currentUser.uid);
           if (settings.language) {
             setLanguageState(settings.language);
+            setTranslations(dictionaries[settings.language]);
+            localStorage.setItem('language', settings.language);
           }
         } catch (error) {
           console.error('Erro ao carregar configurações de idioma:', error);
@@ -40,15 +46,27 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setLanguage = async (newLanguage: LanguageOption) => {
     try {
+      // Primeiro, atualiza o estado local
       setLanguageState(newLanguage);
+      setTranslations(dictionaries[newLanguage]);
+
+      // Depois, salva no localStorage
       localStorage.setItem('language', newLanguage);
+
+      // Por último, salva no banco de dados se houver usuário logado
+      if (currentUser) {
+        await saveUserSettings(currentUser.uid, { language: newLanguage });
+      }
     } catch (error) {
       console.error('Erro ao salvar configurações de idioma:', error);
+      // Em caso de erro, reverte para o idioma anterior
+      setLanguageState(language);
+      setTranslations(dictionaries[language]);
     }
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t: dictionaries[language] }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t: translations }}>
       {children}
     </LanguageContext.Provider>
   );

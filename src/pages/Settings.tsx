@@ -51,10 +51,16 @@ const Settings = () => {
     loadSettings();
   }, [currentUser, t]);
 
+  // Efeito para atualizar as traduções quando o idioma mudar
+  useEffect(() => {
+    setSettings(prev => ({ ...prev, language }));
+  }, [language]);
+
   const handleThemeChange = async (newTheme: ThemeOption) => {
     try {
-      setTheme(newTheme);
+      await setTheme(newTheme);
       setSettings(prev => ({ ...prev, theme: newTheme }));
+      toast.success(t.settings.saveSuccess);
     } catch (error) {
       console.error('Erro ao salvar tema:', error);
       toast.error(t.settings.saveError);
@@ -63,11 +69,15 @@ const Settings = () => {
 
   const handleLanguageChange = async (newLanguage: LanguageOption) => {
     try {
+      setIsSaving(true);
       await setLanguage(newLanguage);
       setSettings(prev => ({ ...prev, language: newLanguage }));
+      toast.success(t.settings.saveSuccess);
     } catch (error) {
       console.error('Erro ao salvar idioma:', error);
       toast.error(t.settings.saveError);
+    } finally {
+      setIsSaving(false);
     }
   };
 

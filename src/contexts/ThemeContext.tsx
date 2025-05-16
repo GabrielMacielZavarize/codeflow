@@ -56,6 +56,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       setThemeState(newTheme);
       localStorage.setItem('theme', newTheme);
+
+      // Aplicar o tema imediatamente
+      const root = window.document.documentElement;
+      root.classList.remove('light', 'dark');
+
+      if (newTheme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        root.classList.add(systemTheme);
+      } else {
+        root.classList.add(newTheme);
+      }
+
+      // Salvar no banco de dados se houver usuário logado
+      if (currentUser) {
+        await saveUserSettings(currentUser.uid, { theme: newTheme });
+      }
     } catch (error) {
       console.error('Erro ao salvar configurações de tema:', error);
     }

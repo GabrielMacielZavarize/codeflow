@@ -1,17 +1,17 @@
 export const es = {
   // Auth
   login: {
-    title: "Iniciar sesión",
+    title: "Iniciar Sesión",
     description: "Ingrese sus credenciales para acceder al sistema",
     email: "Correo electrónico",
     password: "Contraseña",
     forgotPassword: "¿Olvidó su contraseña?",
-    submitButton: "Iniciar sesión",
+    submitButton: "Iniciar Sesión",
     processing: "Procesando...",
     googleButton: "Continuar con Google",
     or: "O",
     noAccount: "¿No tiene una cuenta?",
-    register: "Regístrese",
+    register: "Registrarse",
     success: "Inicio de sesión exitoso",
     error: "Error al iniciar sesión",
     credentials: "Correo o contraseña incorrectos. Use admin@admin.com / 1234",
@@ -65,10 +65,18 @@ export const es = {
   settings: {
     title: "Configuración",
     subtitle: "Personalice su experiencia en el sistema",
+    saveButton: "Guardar cambios",
+    saving: "Guardando...",
+    saveSuccess: "¡Configuración guardada con éxito!",
+    saveError: "Error al guardar la configuración",
     account: {
-      title: "Información de la Cuenta",
-      description: "Administre su información de usuario y preferencias",
-      email: "Correo electrónico"
+      title: "Cuenta",
+      description: "Administre su información de cuenta y preferencias",
+      email: "Correo electrónico",
+      verified: "Verificado",
+      memberSince: "Miembro desde",
+      accessLevel: "Nivel de acceso",
+      admin: "Administrador"
     },
     appearance: {
       title: "Apariencia",
@@ -76,7 +84,7 @@ export const es = {
       theme: "Tema",
       light: "Claro",
       dark: "Oscuro",
-      system: "Sistema (Automático)"
+      system: "Sistema"
     },
     language: {
       title: "Idioma",
@@ -105,10 +113,20 @@ export const es = {
         description: "Reciba recordatorios cuando una tarea se acerque a su fecha límite"
       }
     },
-    saveButton: "Guardar Toda la Configuración",
-    saving: "Guardando...",
-    saveSuccess: "Configuración guardada",
-    saveError: "Error al guardar la configuración"
+    security: {
+      title: "Seguridad",
+      description: "Administre su configuración de seguridad y contraseña",
+      currentPassword: "Contraseña actual",
+      newPassword: "Nueva contraseña",
+      confirmPassword: "Confirmar nueva contraseña",
+      changePassword: "Cambiar contraseña",
+      passwordMismatch: "Las contraseñas no coinciden",
+      passwordChanged: "Contraseña cambiada con éxito",
+      securityTip: {
+        title: "Consejo de seguridad",
+        description: "Use una contraseña fuerte y única para su cuenta. Recomendamos usar una combinación de letras, números y caracteres especiales."
+      }
+    }
   },
 
   // Team
@@ -229,6 +247,49 @@ export const es = {
 
   // Dashboard
   dashboard: {
+    title: "Panel",
+    description: "Gestione sus tareas y siga el progreso",
+    addTask: "Nueva Tarea",
+    overview: "Vista General",
+    tasks: "Tareas",
+    team: "Equipo",
+    analytics: "Análisis",
+    projectProgress: "Progreso del Proyecto",
+    recentActivity: "Actividad Reciente",
+    completedTasks: "Tareas Completadas",
+    pendingTasks: "Tareas Pendientes",
+    teamMembers: "Miembros del Equipo",
+    hoursWorked: "Horas Trabajadas",
+    priorityDistribution: "Distribución de Prioridades",
+    taskStatus: "Estado de las Tareas",
+    teamPerformance: "Rendimiento del Equipo",
+    highPriority: "Alta",
+    mediumPriority: "Media",
+    lowPriority: "Baja",
+    completed: "Completada",
+    inProgress: "En Progreso",
+    pending: "Pendiente",
+    assignee: "Asignado a",
+    dueDate: "Fecha de Entrega",
+    progress: "Progreso",
+    noTasks: "No hay tareas asignadas",
+    filterByPriority: "Filtrar por prioridad",
+    filterByStatus: "Filtrar por estado",
+    allPriorities: "Todas las prioridades",
+    allStatus: "Todos los estados",
+    taskDetails: "Detalles de la Tarea",
+    memberDetails: "Detalles del Miembro",
+    about: "Acerca de",
+    skills: "Habilidades",
+    currentTasks: "Tareas Actuales",
+    joinDate: "Se unió en",
+    newMember: "Nuevo",
+    tasksAssigned: "tareas asignadas",
+    analyticsDescription: {
+      priority: "Análisis de tareas por nivel de prioridad",
+      status: "Distribución por estado actual",
+      performance: "Tareas por miembro del equipo"
+    },
     overviewShort: "Vista",
     tasksShort: "Tareas",
     teamShort: "Equipo"

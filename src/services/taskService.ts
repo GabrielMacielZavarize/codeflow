@@ -1,19 +1,22 @@
-import { db } from './firebase';
-import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
 
 export type Priority = 'high' | 'medium' | 'low';
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'canceled';
+export type TaskStatus = 'concluida' | 'pendente' | 'atrasada';
 
 export interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed';
+  status: TaskStatus;
   priority: Priority;
-  dueDate: Date;
-  createdAt: Date;
-  assignee?: string;
+  dataCriacao: Date;
+  dataAtualizacao: Date;
+  dataInicio?: Date;
+  dataFim?: Date;
+  responsavelId?: string;
   progress?: number;
+  userId: string;
 }
 
 // Mock de tarefas para desenvolvimento inicial
@@ -68,28 +71,27 @@ const mockTasks: Omit<Task, 'id' | 'userId'>[] = [
 // Funções para gerenciar tarefas
 export const getTasks = async (userId: string): Promise<Task[]> => {
   try {
-    // Para desenvolvimento, retornamos os mocks
-    // Em produção, descomente o código abaixo e comente a parte de mock
-    /*
-    const tasksCollection = collection(db, 'tasks');
-    const taskSnapshot = await getDocs(tasksCollection);
-    return taskSnapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() } as Task))
-      .filter(task => task.userId === userId);
-    */
+    const tasksCollection = collection(db, 'tarefas');
+    const q = query(
+      tasksCollection,
+      where('userId', '==', userId)
+    );
 
-    // Versão mock para desenvolvimento
-    const mockTasksWithIds = mockTasks.map((task, index) => ({
-      ...task,
-      id: `mock-task-${index}`,
-      dueDate: new Date(task.dueDate),
-      createdAt: new Date(task.createdAt),
-      assignee: task.assignee || 'user-1',
-      progress: task.progress || 0
-    }));
+    const taskSnapshot = await getDocs(q);
+    const tasks = taskSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        dataCriacao: data.dataCriacao?.toDate?.() || new Date(),
+        dataAtualizacao: data.dataAtualizacao?.toDate?.() || new Date(),
+        dataInicio: data.dataInicio?.toDate?.() || null,
+        dataFim: data.dataFim?.toDate?.() || null
+      } as Task;
+    });
 
-    console.log('Mock tasks:', mockTasksWithIds);
-    return mockTasksWithIds;
+    // Ordena as tarefas por data de criação após buscar
+    return tasks.sort((a, b) => b.dataCriacao.getTime() - a.dataCriacao.getTime());
   } catch (error) {
     console.error('Erro ao buscar tarefas:', error);
     return [];
@@ -98,10 +100,22 @@ export const getTasks = async (userId: string): Promise<Task[]> => {
 
 export const getTaskById = async (id: string): Promise<Task | null> => {
   try {
-    // Versão mock para desenvolvimento
-    const allTasks = await getTasks('mock-user-id');
-    const task = allTasks.find(task => task.id === id);
-    return task || null;
+    const tasksCollection = collection(db, 'tarefas');
+    const q = query(tasksCollection, where('id', '==', id));
+    const taskSnapshot = await getDocs(q);
+
+    if (taskSnapshot.empty) return null;
+
+    const doc = taskSnapshot.docs[0];
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      dataCriacao: data.dataCriacao?.toDate?.() || new Date(),
+      dataAtualizacao: data.dataAtualizacao?.toDate?.() || new Date(),
+      dataInicio: data.dataInicio?.toDate?.() || null,
+      dataFim: data.dataFim?.toDate?.() || null
+    } as Task;
   } catch (error) {
     console.error('Erro ao buscar tarefa:', error);
     return null;
@@ -110,15 +124,16 @@ export const getTaskById = async (id: string): Promise<Task | null> => {
 
 export const addTask = async (task: Omit<Task, 'id'>): Promise<Task | null> => {
   try {
-    // Para produção, descomente o código abaixo
-    /*
-    const docRef = await addDoc(collection(db, 'tasks'), task);
-    return { ...task, id: docRef.id };
-    */
+    const taskData = {
+      ...task,
+      dataCriacao: Timestamp.fromDate(new Date()),
+      dataAtualizacao: Timestamp.fromDate(new Date()),
+      dataInicio: task.dataInicio ? Timestamp.fromDate(task.dataInicio) : null,
+      dataFim: task.dataFim ? Timestamp.fromDate(task.dataFim) : null
+    };
 
-    // Versão mock para desenvolvimento
-    console.log('Task adicionada (mock):', task);
-    return { ...task, id: `mock-task-${new Date().getTime()}` };
+    const docRef = await addDoc(collection(db, 'tarefas'), taskData);
+    return { ...task, id: docRef.id };
   } catch (error) {
     console.error('Erro ao adicionar tarefa:', error);
     return null;
@@ -127,13 +142,14 @@ export const addTask = async (task: Omit<Task, 'id'>): Promise<Task | null> => {
 
 export const updateTask = async (id: string, taskData: Partial<Task>): Promise<boolean> => {
   try {
-    // Para produção, descomente o código abaixo
-    /*
-    await updateDoc(doc(db, 'tasks', id), taskData);
-    */
+    const updateData = {
+      ...taskData,
+      dataAtualizacao: Timestamp.fromDate(new Date()),
+      dataInicio: taskData.dataInicio ? Timestamp.fromDate(taskData.dataInicio) : null,
+      dataFim: taskData.dataFim ? Timestamp.fromDate(taskData.dataFim) : null
+    };
 
-    // Versão mock para desenvolvimento
-    console.log(`Task ${id} atualizada (mock):`, taskData);
+    await updateDoc(doc(db, 'tarefas', id), updateData);
     return true;
   } catch (error) {
     console.error('Erro ao atualizar tarefa:', error);
@@ -143,13 +159,7 @@ export const updateTask = async (id: string, taskData: Partial<Task>): Promise<b
 
 export const deleteTask = async (id: string): Promise<boolean> => {
   try {
-    // Para produção, descomente o código abaixo
-    /*
-    await deleteDoc(doc(db, 'tasks', id));
-    */
-
-    // Versão mock para desenvolvimento
-    console.log(`Task ${id} removida (mock)`);
+    await deleteDoc(doc(db, 'tarefas', id));
     return true;
   } catch (error) {
     console.error('Erro ao remover tarefa:', error);

@@ -258,13 +258,14 @@ export const ptBR = {
     status: {
       pending: 'Pendente',
       inProgress: 'Em Progresso',
-      completed: 'Concluída'
+      completed: 'Concluída',
+      canceled: 'Cancelada'
     },
     assignLabel: 'Responsável',
     selectAssignee: 'Selecione o responsável',
     dueDate: 'Data de Entrega',
     selectDate: 'Selecione uma data',
-    noDueDate: 'Sem data definida',
+    noDueDate: 'Sem data de entrega',
     assignee: 'Responsável',
     cancel: 'Cancelar',
     adding: 'Adicionando...',
@@ -273,16 +274,20 @@ export const ptBR = {
     added: 'Tarefa adicionada com sucesso',
     addError: 'Erro ao adicionar tarefa',
     viewDescription: 'Descrição',
-    assignedTo: 'Atribuída a:',
+    assignedTo: 'Atribuído a:',
     statusLabel: 'Status:',
     editTitle: 'Editar Tarefa',
-    editDescription: 'Atualize as informações desta tarefa',
+    editDescription: 'Atualizar informações da tarefa',
     edit: 'Editar',
     delete: 'Excluir',
-    confirmDelete: "Tem certeza que deseja excluir esta tarefa?",
-    back: "Voltar para o Painel",
-    notFound: "Tarefa não encontrada",
-    notFoundDescription: "A tarefa que você está procurando não existe ou foi removida."
+    unassigned: 'Não atribuído',
+    comments: 'Comentários',
+    reply: 'Responder',
+    replyPlaceholder: 'Digite sua resposta...',
+    send: 'Enviar',
+    addComment: 'Adicionar um comentário...',
+    progress: 'Progresso',
+    confirmDelete: 'Tem certeza que deseja excluir esta tarefa?'
   },
 
   // General

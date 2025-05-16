@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
+import { ScrollToTop } from "./components/ScrollToTop";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -57,6 +58,7 @@ const App = () => (
         <ThemeProvider>
           <LanguageProvider>
             <TooltipProvider>
+              <ScrollToTop />
               <Toaster />
               <Routes>
                 {/* Public home page */}

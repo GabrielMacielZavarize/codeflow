@@ -70,8 +70,11 @@ const Settings = () => {
   const handleLanguageChange = async (newLanguage: LanguageOption) => {
     try {
       setIsSaving(true);
-      await setLanguage(newLanguage);
+      setLanguage(newLanguage);
       setSettings(prev => ({ ...prev, language: newLanguage }));
+      if (currentUser) {
+        await saveUserSettings(currentUser.uid, { ...settings, language: newLanguage });
+      }
       toast.success(t.settings.saveSuccess);
     } catch (error) {
       console.error('Erro ao salvar idioma:', error);
@@ -213,7 +216,7 @@ const Settings = () => {
                     <div className="space-y-4">
                       <Label>{t.settings.language.title}</Label>
                       <RadioGroup
-                        value={settings.language}
+                        value={language}
                         onValueChange={handleLanguageChange}
                         className="grid grid-cols-1 sm:grid-cols-3 gap-4"
                       >

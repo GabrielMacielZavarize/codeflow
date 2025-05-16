@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from 'firebase/auth';
-import { onAuthChange, logoutUser } from '../services/firebase';
+import { auth, logoutUser, clearAllListeners } from '@/lib/firebase/firebase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import { useLanguage } from './LanguageContext';
@@ -11,11 +11,9 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  currentUser: null,
-  loading: true,
-  logout: async () => { }
-});
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -24,43 +22,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { t } = useLanguage();
 
   useEffect(() => {
-    const unsubscribe = onAuthChange((user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      clearAllListeners();
+    };
   }, []);
 
   const logout = async () => {
     try {
-      const { success, error } = await logoutUser();
-      if (success) {
-        setCurrentUser(null);
-        toast.success(t.logout.success);
-        navigate('/', { replace: true });
-      } else {
-        toast.error(error || t.logout.error);
-      }
+      await logoutUser();
+      setCurrentUser(null);
+      toast.success(t.logout.success);
+      navigate('/', { replace: true });
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error('Erro ao fazer logout:', error);
       toast.error(t.logout.error);
+      throw error;
     }
   };
 
-  const value = {
-    currentUser,
-    loading,
-    logout
-  };
-
   return (
-    <AuthContext.Provider value={value}>
-      {children}
+    <AuthContext.Provider value={{ currentUser, loading, logout }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
 };

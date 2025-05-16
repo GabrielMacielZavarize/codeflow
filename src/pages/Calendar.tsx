@@ -10,14 +10,20 @@ import { toast } from '@/components/ui/sonner';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '../contexts/LanguageContext';
-import AddTaskModal from '../components/AddTaskModal';
+import { AddTaskModal } from '@/components/AddTaskModal';
 import TaskDetails from '../components/TaskDetails';
+import { onSnapshot, collection, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { membrosService, MembroEquipe } from '@/lib/firebase/membros';
+import { cn } from '@/lib/utils';
+import { tarefasService } from '@/lib/firebase/tarefas';
 
 const Calendar = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [teamMembers, setTeamMembers] = useState<MembroEquipe[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
@@ -27,31 +33,47 @@ const Calendar = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      setLoading(true);
+    const loadTeamMembers = async () => {
       try {
-        if (currentUser) {
-          console.log('Fetching tasks for user:', currentUser.uid);
-          const tasksData = await getTasks(currentUser.uid);
-          console.log('Tasks fetched:', tasksData);
-          setTasks(tasksData);
-        } else {
-          console.log('No current user found');
-          // Para desenvolvimento, carregar tarefas mesmo sem usuário
-          const tasksData = await getTasks('mock-user-id');
-          console.log('Mock tasks loaded:', tasksData);
-          setTasks(tasksData);
-        }
+        const membros = await membrosService.buscarMembros();
+        setTeamMembers(membros);
       } catch (error) {
-        console.error('Erro ao carregar tarefas:', error);
-        toast.error(t.calendar.errorLoading);
-      } finally {
-        setLoading(false);
+        console.error('Erro ao carregar membros da equipe:', error);
+        toast.error('Erro ao carregar membros da equipe');
       }
     };
 
-    fetchTasks();
-  }, [currentUser, t]);
+    loadTeamMembers();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const tarefasRef = collection(db, 'tarefas');
+    const q = query(tarefasRef, where('userId', '==', currentUser.uid));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tarefasAtualizadas = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          dataCriacao: data.dataCriacao?.toDate?.() || new Date(),
+          dataAtualizacao: data.dataAtualizacao?.toDate?.() || new Date(),
+          dataInicio: data.dataInicio?.toDate?.() || null,
+          dataFim: data.dataFim?.toDate?.() || null
+        } as Task;
+      });
+      setTasks(tarefasAtualizadas);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -62,56 +84,54 @@ const Calendar = () => {
   const dayOfWeek = getDay(startDate);
 
   const getTasksForDay = (date: Date) => {
-    if (!tasks || tasks.length === 0) {
-      console.log('No tasks available for filtering');
-      return [];
-    }
+    if (!tasks || tasks.length === 0) return [];
 
-    const filteredTasks = tasks.filter(task => {
-      if (!task.dueDate) {
-        console.log('Task without due date:', task);
-        return false;
-      }
+    return tasks.filter(task => {
+      const taskDate = task.dataFim || task.dataInicio;
+      if (!taskDate) return false;
 
-      const dueDate = new Date(task.dueDate);
-      const isSameDate = isSameDay(dueDate, date);
-
+      const isSameDate = isSameDay(taskDate, date);
       if (!isSameDate) return false;
 
-      if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false;
+      if (priorityFilter !== 'all' && task.prioridade !== priorityFilter) return false;
       if (statusFilter !== 'all' && task.status !== statusFilter) return false;
+
+      if (statusFilter === 'atrasada') {
+        const hoje = new Date();
+        return task.dataFim && task.dataFim < hoje && task.status !== 'concluida';
+      }
 
       return true;
     });
-
-    console.log(`Tasks for ${format(date, 'yyyy-MM-dd')}:`, filteredTasks);
-    return filteredTasks;
   };
 
-  const getDayClass = (date: Date) => {
-    let classes = 'h-32 border border-gray-200 dark:border-gray-700 p-2 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 ';
+  const getDayClass = (day: Date) => {
+    const isToday = isSameDay(day, new Date());
+    const dayTasks = tasks.filter(task => {
+      const taskDate = task.dataFim ? new Date(task.dataFim.seconds * 1000) : null;
+      return taskDate && isSameDay(day, taskDate);
+    });
 
-    if (!isSameMonth(date, currentDate)) {
-      classes += 'bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500 ';
-    } else {
-      classes += 'bg-white dark:bg-gray-800 ';
-    }
+    const hasHighPriority = dayTasks.some(task => task.prioridade === 'alta');
+    const hasMediumPriority = dayTasks.some(task => task.prioridade === 'media');
+    const hasLowPriority = dayTasks.some(task => task.prioridade === 'baixa');
 
-    if (isToday(date)) {
-      classes += 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 ';
-    }
-
-    return classes;
+    return cn(
+      "relative p-2 h-24 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors",
+      isToday && "ring-2 ring-primary",
+      hasHighPriority && "bg-red-50 dark:bg-red-900/20",
+      hasMediumPriority && !hasHighPriority && "bg-yellow-50 dark:bg-yellow-900/20",
+      hasLowPriority && !hasHighPriority && !hasMediumPriority && "bg-green-50 dark:bg-green-900/20",
+      dayTasks.length > 0 && "hover:bg-gray-50 dark:hover:bg-gray-800"
+    );
   };
 
   const handleDayClick = (day: Date) => {
-    console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
     setSelectedDate(day);
     setIsAddTaskModalOpen(true);
   };
 
   const handleTaskClick = (taskId: string) => {
-    console.log('Task clicked:', taskId);
     const task = tasks.find(t => t.id === taskId);
     if (task) {
       setSelectedTask(task);
@@ -133,22 +153,30 @@ const Calendar = () => {
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'concluida':
         return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300';
-      case 'in_progress':
-        return 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300';
-      case 'pending':
+      case 'pendente':
         return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300';
+      case 'atrasada':
+        return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300';
       default:
         return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
     }
   };
 
-  const handleNewTask = (task: Task) => {
-    console.log('New task added:', task);
-    setTasks([...tasks, task]);
-    setIsAddTaskModalOpen(false);
-    setSelectedDate(null);
+  const handleNewTask = async (taskData: Omit<Task, 'id'>) => {
+    try {
+      const novaTarefa = await tarefasService.criarTarefa(taskData);
+      if (!novaTarefa.id) {
+        throw new Error('Tarefa criada sem ID');
+      }
+      toast.success('Tarefa criada com sucesso!');
+      setIsAddTaskModalOpen(false);
+      setSelectedDate(null);
+    } catch (error) {
+      console.error('Erro ao criar tarefa:', error);
+      toast.error('Erro ao criar tarefa');
+    }
   };
 
   const handlePreviousMonth = () => {
@@ -167,8 +195,13 @@ const Calendar = () => {
     setSelectedTask(null);
   };
 
+  const getResponsavelNome = (responsavelId: string) => {
+    const membro = teamMembers.find(m => m.id === responsavelId);
+    return membro ? membro.nome : responsavelId;
+  };
+
   if (selectedTask) {
-    return <TaskDetails task={selectedTask} onBack={handleBack} />;
+    return <TaskDetails task={selectedTask} onBack={handleBack} getResponsavelNome={getResponsavelNome} />;
   }
 
   return (
@@ -217,9 +250,9 @@ const Calendar = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t.calendar.allPriorities}</SelectItem>
-                  <SelectItem value="high">{t.calendar.highPriority}</SelectItem>
-                  <SelectItem value="medium">{t.calendar.mediumPriority}</SelectItem>
-                  <SelectItem value="low">{t.calendar.lowPriority}</SelectItem>
+                  <SelectItem value="alta">{t.calendar.highPriority}</SelectItem>
+                  <SelectItem value="media">{t.calendar.mediumPriority}</SelectItem>
+                  <SelectItem value="baixa">{t.calendar.lowPriority}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -229,9 +262,11 @@ const Calendar = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t.calendar.allStatus}</SelectItem>
-                  <SelectItem value="pending">{t.calendar.pending}</SelectItem>
-                  <SelectItem value="in_progress">{t.calendar.inProgress}</SelectItem>
-                  <SelectItem value="completed">{t.calendar.completed}</SelectItem>
+                  <SelectItem value="pendente">{t.calendar.pending}</SelectItem>
+                  <SelectItem value="concluida">{t.calendar.completed}</SelectItem>
+                  <SelectItem value="atrasada">{t.calendar.overdue}</SelectItem>
+                  <SelectItem value="em_progresso">{t.calendar.inProgress}</SelectItem>
+                  <SelectItem value="duvida">{t.calendar.doubt}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -248,78 +283,63 @@ const Calendar = () => {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
-            {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <span className="ml-3 dark:text-gray-300 text-sm sm:text-base">{t.calendar.loading}</span>
-              </div>
-            ) : (
-              <div className="grid grid-cols-7 text-xs sm:text-sm">
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day, index) => (
+          <CardContent className="p-3 sm:p-6">
+            <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
+              {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
+                <div
+                  key={day}
+                  className="bg-white dark:bg-gray-800 p-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {day}
+                </div>
+              ))}
+              {Array.from({ length: dayOfWeek }).map((_, index) => (
+                <div
+                  key={`empty-${index}`}
+                  className="h-32 bg-gray-50 dark:bg-gray-800/50"
+                />
+              ))}
+              {daysInMonth.map((day, index) => {
+                const tasksForDay = getTasksForDay(day);
+                return (
                   <div
                     key={index}
-                    className="p-1 sm:p-2 text-center font-semibold border-b border-gray-200 dark:border-gray-700 dark:text-gray-300"
+                    className={getDayClass(day)}
+                    onClick={() => handleDayClick(day)}
                   >
-                    {day}
-                  </div>
-                ))}
-
-                {Array.from({ length: dayOfWeek }).map((_, index) => (
-                  <div
-                    key={`empty-${index}`}
-                    className="h-24 sm:h-32 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
-                  ></div>
-                ))}
-
-                {daysInMonth.map((date, idx) => (
-                  <div
-                    key={idx}
-                    className={getDayClass(date)}
-                    onClick={() => handleDayClick(date)}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium dark:text-gray-300 text-xs sm:text-sm">
-                        {format(date, 'd')}
+                    <div className="flex justify-between items-start">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {format(day, 'd')}
                       </span>
-                      {isToday(date) && (
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 text-[10px] sm:text-xs">
-                          {t.calendar.today}
+                      {tasksForDay.length > 0 && (
+                        <Badge variant="secondary" className="ml-1">
+                          {tasksForDay.length}
                         </Badge>
                       )}
                     </div>
-                    <div className="space-y-1 overflow-y-auto max-h-20 sm:max-h-24">
-                      {getTasksForDay(date).map((task) => (
+                    <div className="mt-1 space-y-1 max-h-[calc(100%-2rem)] overflow-y-auto">
+                      {tasksForDay.map((task) => (
                         <div
                           key={task.id}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleTaskClick(task.id);
                           }}
-                          className="px-1 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
+                          className={`text-xs p-1.5 rounded truncate cursor-pointer transition-colors duration-200 ${task.prioridade === 'alta'
+                            ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-900/40'
+                            : task.prioridade === 'media'
+                              ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-900/40'
+                              : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-900/40'
+                            }`}
                         >
-                          <div className={`font-medium truncate ${getPriorityClass(task.priority)}`}>
-                            {task.title}
-                          </div>
-                          <div className="flex items-center justify-between mt-0.5 sm:mt-1">
-                            <Badge variant="secondary" className={`text-[10px] sm:text-xs ${getStatusClass(task.status)}`}>
-                              {task.status === 'completed' ? t.calendar.completed :
-                                task.status === 'in_progress' ? t.calendar.inProgress :
-                                  t.calendar.pending}
-                            </Badge>
-                            {task.assignee && (
-                              <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-                                {task.assignee}
-                              </span>
-                            )}
-                          </div>
+                          {task.title}
                         </div>
                       ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       </main>
@@ -331,13 +351,8 @@ const Calendar = () => {
           setSelectedDate(null);
         }}
         onTaskAdded={handleNewTask}
-        initialDate={selectedDate}
-        teamMembers={[
-          { id: 1, name: 'user-1', role: 'Desenvolvedor' },
-          { id: 2, name: 'user-2', role: 'Designer' },
-          { id: 3, name: 'user-3', role: 'Gerente' },
-          { id: 4, name: 'user-4', role: 'Analista' }
-        ]}
+        selectedDate={selectedDate}
+        teamMembers={teamMembers}
       />
     </div>
   );

@@ -1,6 +1,4 @@
-import { initializeApp } from 'firebase/app';
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -11,23 +9,8 @@ import {
   signInWithPopup,
   updateProfile
 } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { auth } from '../lib/firebase/config';
 
-// Configuração do Firebase
-const firebaseConfig = {
-  apiKey: 'AIzaSyB4Ey4Weq-TNIuyPYI2tt7gxkD0B5QyCR0',
-  authDomain: 'codeflow-83342.firebaseapp.com',
-  projectId: 'codeflow-83342',
-  storageBucket: 'codeflow-83342.appspot.com',
-  messagingSenderId: '418856931360',
-  appId: '1:418856931360:web:de42a41c3598a2b5c26c45',
-  measurementId: 'G-QYRXTZ72CW'
-};
-
-// Inicializa o Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
 // Função para registrar usuário com email e senha

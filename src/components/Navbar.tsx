@@ -14,7 +14,8 @@ import {
   Clock,
   Settings,
   Menu as MenuIcon,
-  X
+  X,
+  Github
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -181,42 +182,62 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
-
           <Button
             variant="ghost"
             size="icon"
-            className="relative"
-            onClick={() => navigate('/notifications')}
+            asChild
+            className="hover:bg-accent"
           >
-            <Bell className="h-5 w-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
+            <a
+              href="https://github.com/GabrielMacielZavarize/codeflow"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Ver no GitHub"
+            >
+              <Github className="h-5 w-5" />
+            </a>
           </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src="" alt={currentUser?.email || ""} />
-                  <AvatarFallback className="bg-primary text-primary-foreground">{userInitials}</AvatarFallback>
-                </Avatar>
+          <ThemeToggle />
+
+          {currentUser && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                onClick={() => navigate('/notifications')}
+              >
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>{t.settings.account.title}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/settings')}>
-                {t.navigation.settings}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>
-                {t.logout.button}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src="" alt={currentUser?.email || ""} />
+                      <AvatarFallback className="bg-primary text-primary-foreground">{userInitials}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>{t.settings.account.title}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/settings')}>
+                    {t.navigation.settings}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    {t.logout.button}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
         </div>
       </div>
     </header>

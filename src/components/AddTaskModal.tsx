@@ -1,170 +1,166 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { addTask, Priority, Task } from '../services/taskService';
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { toast } from '@/components/ui/sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useLanguage } from '../contexts/LanguageContext';
+import { CalendarIcon, Plus, AlertCircle, Clock, CheckCircle2, HelpCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Tarefa } from '@/lib/firebase/tarefas';
+import { MembroEquipe } from '@/lib/firebase/membros';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskAdded: (task: Task) => void;
-  initialDate?: Date | null;
-  teamMembers?: Array<{
-    id: number;
-    name: string;
-    role: string;
-  }>;
+  onTaskAdded: (task: Tarefa) => void;
+  teamMembers: MembroEquipe[];
+  selectedDate?: Date | null;
 }
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({
+export const AddTaskModal: React.FC<AddTaskModalProps> = ({
   isOpen,
   onClose,
   onTaskAdded,
-  initialDate,
-  teamMembers = [
-    { id: 1, name: 'user-1', role: 'Desenvolvedor' },
-    { id: 2, name: 'user-2', role: 'Designer' },
-    { id: 3, name: 'user-3', role: 'Gerente' },
-    { id: 4, name: 'user-4', role: 'Analista' }
-  ]
+  teamMembers,
+  selectedDate
 }) => {
   const { currentUser } = useAuth();
-  const { t } = useLanguage();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<Priority>('medium');
-  const [dueDate, setDueDate] = useState<Date | undefined>(initialDate);
-  const [assignee, setAssignee] = useState<string>('');
+  const [titulo, setTitulo] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [prioridade, setPrioridade] = useState<string>('media');
+  const [status, setStatus] = useState<string>('pendente');
+  const [responsavelId, setResponsavelId] = useState<string>('');
+  const [dataInicio, setDataInicio] = useState<Date | undefined>(selectedDate || new Date());
+  const [dataFim, setDataFim] = useState<Date | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!currentUser) {
-      toast.error(t.tasks.error);
-      return;
-    }
-
-    if (!title.trim()) {
-      toast.error(t.tasks.titleRequired);
-      return;
-    }
-
-    const newTask = {
-      title: title.trim(),
-      description: description.trim(),
-      priority,
-      createdAt: new Date(),
-      userId: currentUser.uid,
-      dueDate,
-      assignee,
-      status: 'pending',
-      progress: 0
-    };
-
     setIsSubmitting(true);
-    const addedTask = await addTask(newTask);
-    setIsSubmitting(false);
 
-    if (addedTask) {
-      toast.success(t.tasks.added);
-      onTaskAdded(addedTask);
-      resetForm();
+    try {
+      if (!currentUser) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const novaTarefa: Omit<Tarefa, 'id'> = {
+        titulo,
+        descricao,
+        prioridade,
+        status,
+        responsavelId,
+        responsavelNome: teamMembers.find(m => m.id === responsavelId)?.nome || '',
+        responsavelAvatar: teamMembers.find(m => m.id === responsavelId)?.avatar || '',
+        dataCriacao: new Date(),
+        dataAtualizacao: new Date(),
+        dataInicio: new Date(),
+        dataFim: dataFim ? new Date(dataFim) : undefined,
+        comentarios: [],
+        concluida: false,
+        userId: currentUser.uid
+      };
+
+      await onTaskAdded(novaTarefa);
       onClose();
-    } else {
-      toast.error(t.tasks.addError);
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao criar tarefa:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    setTitulo('');
+    setDescricao('');
+    setPrioridade('media');
+    setStatus('pendente');
+    setResponsavelId('');
+    setDataInicio(new Date());
+    setDataFim(undefined);
+    onClose();
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'concluida':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'em_progresso':
+        return <Clock className="h-4 w-4 text-blue-500" />;
+      case 'pendente':
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+      case 'duvida':
+        return <HelpCircle className="h-4 w-4 text-orange-500" />;
+      default:
+        return <AlertCircle className="h-4 w-4 text-gray-500" />;
     }
   };
 
   const resetForm = () => {
-    setTitle('');
-    setDescription('');
-    setPriority('medium');
-    setDueDate(undefined);
-    setAssignee('');
+    setTitulo('');
+    setDescricao('');
+    setPrioridade('media');
+    setStatus('pendente');
+    setResponsavelId('');
+    setDataInicio(new Date());
+    setDataFim(undefined);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[600px] p-4 sm:p-6">
-        <DialogHeader className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="sm:hidden"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <DialogTitle className="text-xl sm:text-2xl">{t.tasks.addTask}</DialogTitle>
-          </div>
-          <DialogDescription className="text-sm sm:text-base">
-            {t.tasks.addTaskDescription}
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"
+        aria-describedby="dialog-description"
+      >
+        <DialogHeader>
+          <DialogTitle id="dialog-title" className="text-2xl font-bold flex items-center gap-2">
+            <Plus className="h-6 w-6 text-primary" />
+            Nova Tarefa
+          </DialogTitle>
+          <DialogDescription id="dialog-description">
+            Preencha os detalhes abaixo para criar uma nova tarefa
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm sm:text-base">{t.tasks.titleLabel}</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={t.tasks.titlePlaceholder}
-              required
-              className="text-sm sm:text-base"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm sm:text-base">{t.tasks.descriptionLabel}</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={t.tasks.descriptionPlaceholder}
-              rows={3}
-              className="text-sm sm:text-base"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-6" aria-labelledby="dialog-title">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="priority" className="text-sm sm:text-base">{t.tasks.priorityLabel}</Label>
-              <Select value={priority} onValueChange={(value) => setPriority(value as Priority)}>
-                <SelectTrigger className="text-sm sm:text-base">
-                  <SelectValue placeholder={t.tasks.selectPriority} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">{t.tasks.priority.high}</SelectItem>
-                  <SelectItem value="medium">{t.tasks.priority.medium}</SelectItem>
-                  <SelectItem value="low">{t.tasks.priority.low}</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="titulo">Título</Label>
+              <Input
+                id="titulo"
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                placeholder="Digite o título da tarefa"
+                required
+                className="w-full"
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="assignee" className="text-sm sm:text-base">{t.tasks.assignLabel}</Label>
-              <Select value={assignee} onValueChange={setAssignee}>
-                <SelectTrigger className="text-sm sm:text-base">
-                  <SelectValue placeholder={t.tasks.selectAssignee} />
+              <Label htmlFor="responsavel">Responsável</Label>
+              <Select value={responsavelId} onValueChange={setResponsavelId}>
+                <SelectTrigger id="responsavel" className="w-full">
+                  <SelectValue placeholder="Selecione um responsável" />
                 </SelectTrigger>
                 <SelectContent>
                   {teamMembers.map((member) => (
-                    <SelectItem key={member.id} value={member.name} className="text-sm sm:text-base">
-                      {member.name} - {member.role}
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -173,54 +169,141 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm sm:text-base">{t.tasks.dueDate}</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal text-sm sm:text-base"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, 'PPP', { locale: ptBR }) : t.tasks.selectDate}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dueDate}
-                  onSelect={setDueDate}
-                  initialFocus
-                  locale={ptBR}
-                />
-              </PopoverContent>
-            </Popover>
+            <Label htmlFor="descricao">Descrição</Label>
+            <Textarea
+              id="descricao"
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              placeholder="Descreva os detalhes da tarefa"
+              className="min-h-[100px]"
+            />
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Prioridade</Label>
+              <Select value={prioridade} onValueChange={setPrioridade}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione a prioridade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alta" className="text-red-500">
+                    Alta Prioridade
+                  </SelectItem>
+                  <SelectItem value="media" className="text-yellow-500">
+                    Média Prioridade
+                  </SelectItem>
+                  <SelectItem value="baixa" className="text-green-500">
+                    Baixa Prioridade
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pendente" className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-yellow-500" />
+                    Pendente
+                  </SelectItem>
+                  <SelectItem value="em_progresso" className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-blue-500" />
+                    Em Progresso
+                  </SelectItem>
+                  <SelectItem value="concluida" className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    Concluída
+                  </SelectItem>
+                  <SelectItem value="duvida" className="flex items-center gap-2">
+                    <HelpCircle className="h-4 w-4 text-orange-500" />
+                    Com Dúvida
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Data de Início</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dataInicio && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dataInicio ? format(dataInicio, "PPP", { locale: ptBR }) : "Selecione a data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dataInicio}
+                    onSelect={setDataInicio}
+                    initialFocus
+                    locale={ptBR}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Data de Término</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dataFim && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dataFim ? format(dataFim, "PPP", { locale: ptBR }) : "Selecione a data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dataFim}
+                    onSelect={setDataFim}
+                    initialFocus
+                    locale={ptBR}
+                    disabled={(date) => date < (dataInicio || new Date())}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                resetForm();
-                onClose();
-              }}
+              onClick={handleClose}
               disabled={isSubmitting}
-              className="w-full sm:w-auto text-sm sm:text-base"
             >
-              {t.tasks.cancel}
+              Cancelar
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto text-sm sm:text-base"
+              className="bg-primary hover:bg-primary/90"
             >
-              {isSubmitting ? t.tasks.adding : t.tasks.addTask}
+              {isSubmitting ? 'Criando...' : 'Criar Tarefa'}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
   );
 };
-
-export default AddTaskModal;

@@ -1,8 +1,9 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Github } from 'lucide-react';
 import TypewriterText from '@/components/TypewriterText';
 
 const Home = () => {
@@ -57,7 +58,22 @@ const Home = () => {
               </a>
             </div>
           </nav>
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="hover:bg-accent"
+            >
+              <a
+                href="https://github.com/GabrielMacielZavarize/codeflow"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Ver no GitHub"
+              >
+                <Github className="h-5 w-5" />
+              </a>
+            </Button>
             {currentUser ? (
               <Button asChild className="bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105 text-sm sm:text-base">
                 <Link to="/dashboard">Acessar Dashboard</Link>

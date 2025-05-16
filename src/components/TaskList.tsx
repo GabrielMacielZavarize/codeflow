@@ -1,98 +1,120 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Task } from '../services/taskService';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { tarefasService } from '@/lib/firebase/tarefas';
+import { toast } from '@/components/ui/sonner';
+import { Trash2, CheckCircle2 } from 'lucide-react';
+
+interface Task {
+  id: string;
+  titulo: string;
+  descricao: string;
+  concluida: boolean;
+  prioridade: 'alta' | 'media' | 'baixa';
+  status: string;
+  userId: string;
+}
 
 interface TaskListProps {
   tasks: Task[];
-  isLoading: boolean;
+  onTaskUpdate: () => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading }) => {
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <span className="ml-3">Carregando tarefas...</span>
-      </div>
-    );
-  }
+export const TaskList = ({ tasks, onTaskUpdate }: TaskListProps) => {
+  const { t } = useLanguage();
 
-  if (tasks.length === 0) {
-    return (
-      <div className="text-center py-12 bg-gray-50 rounded-lg">
-        <p className="text-gray-500 text-lg">
-          Nenhuma tarefa encontrada nesta prioridade
-        </p>
-        <p className="text-gray-400 text-sm mt-2">
-          Adicione uma nova tarefa para começar
-        </p>
-      </div>
-    );
-  }
-
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return <Badge variant="outline" className="border-priority-high text-priority-high">Alta</Badge>;
-      case 'medium':
-        return <Badge variant="outline" className="border-priority-medium text-priority-medium">Média</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="border-priority-low text-priority-low">Baixa</Badge>;
-      default:
-        return null;
+  const handleToggleComplete = async (taskId: string, currentStatus: boolean) => {
+    try {
+      await tarefasService.atualizarTarefa(taskId, {
+        concluida: !currentStatus
+      });
+      onTaskUpdate();
+      toast.success(t.tasks.added);
+    } catch (error) {
+      console.error('Erro ao atualizar tarefa:', error);
+      toast.error(t.tasks.addError);
     }
   };
 
-  const getStatusBadge = (status?: string) => {
-    if (!status) return null;
-    
-    switch (status) {
-      case 'pending':
-        return <Badge variant="secondary" className="ml-2">Pendente</Badge>;
-      case 'in_progress':
-        return <Badge variant="default" className="ml-2 bg-blue-500">Em Progresso</Badge>;
-      case 'completed':
-        return <Badge variant="default" className="ml-2 bg-green-500">Concluída</Badge>;
-      case 'canceled':
-        return <Badge variant="destructive" className="ml-2">Cancelada</Badge>;
+  const handleDelete = async (taskId: string) => {
+    try {
+      if (window.confirm(t.tasks.confirmDelete)) {
+        await tarefasService.deletarTarefa(taskId);
+        onTaskUpdate();
+        toast.success(t.tasks.added);
+      }
+    } catch (error) {
+      console.error('Erro ao deletar tarefa:', error);
+      toast.error(t.tasks.addError);
+    }
+  };
+
+  const getPriorityColor = (prioridade: string) => {
+    switch (prioridade) {
+      case 'alta':
+        return 'bg-red-500';
+      case 'media':
+        return 'bg-yellow-500';
+      case 'baixa':
+        return 'bg-green-500';
       default:
-        return null;
+        return 'bg-gray-500';
+    }
+  };
+
+  const getPriorityLabel = (prioridade: string) => {
+    switch (prioridade) {
+      case 'alta':
+        return t.tasks.priority.high;
+      case 'media':
+        return t.tasks.priority.medium;
+      case 'baixa':
+        return t.tasks.priority.low;
+      default:
+        return t.tasks.unassigned;
     }
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="space-y-4">
       {tasks.map((task) => (
-        <Link key={task.id} to={`/task/${task.id}`} className="no-underline">
-          <Card key={task.id} className={`border-l-4 border-l-priority-${task.priority} hover:shadow-md transition-shadow`}>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg text-foreground">{task.title}</CardTitle>
-                <div className="flex items-center">
-                  {getPriorityBadge(task.priority)}
-                  {getStatusBadge(task.status)}
+        <Card key={task.id}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Checkbox
+                  checked={task.concluida}
+                  onCheckedChange={() => handleToggleComplete(task.id, task.concluida)}
+                />
+                <div>
+                  <h3 className="font-medium">{task.titulo}</h3>
+                  <p className="text-sm text-gray-500">{task.descricao}</p>
                 </div>
               </div>
-              <CardDescription>
-                {new Date(task.createdAt).toLocaleDateString('pt-BR')}
-                {task.assignedTo && 
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    • Atribuída a: {task.assignedTo.split('-')[1]}
-                  </span>
-                }
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 line-clamp-2">{task.description}</p>
-            </CardContent>
-          </Card>
-        </Link>
+              <div className="flex items-center space-x-2">
+                <Badge className={getPriorityColor(task.prioridade)}>
+                  {getPriorityLabel(task.prioridade)}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDelete(task.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       ))}
+      {tasks.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          {t.tarefas.nenhumaTarefa}
+        </div>
+      )}
     </div>
   );
 };
-
-export default TaskList;

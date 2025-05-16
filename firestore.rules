@@ -1,0 +1,47 @@
+//exemplo:
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Função para verificar se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Perfis de usuário
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Tarefas (tasks e tarefas)
+    match /tasks/{taskId} {
+      allow read, write: if isAuthenticated();
+    }
+    match /tarefas/{taskId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Membros da equipe (teamMembers e membros)
+    match /teamMembers/{memberId} {
+      allow read, write: if isAuthenticated();
+    }
+    match /membros/{memberId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Configurações gerais
+    match /settings/{settingId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Logs de auditoria
+    match /auditLogs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Configurações do usuário
+    match /userSettings/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+} 

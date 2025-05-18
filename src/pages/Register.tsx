@@ -9,7 +9,7 @@ import { toast } from '@/components/ui/sonner';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Star } from 'lucide-react';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -73,9 +73,9 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container px-4 py-8 sm:px-8">
-        <Button variant="ghost" asChild className="mb-8">
+        <Button variant="ghost" asChild className="mb-8 hover:scale-105 transition-all duration-300">
           <Link to="/" className="flex items-center gap-2">
             <ArrowLeft size={20} />
             Voltar para Home
@@ -84,21 +84,27 @@ const Register = () => {
 
         <div className="max-w-md mx-auto">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-primary dark:text-white">CodeFlow Solutions</h1>
+            <div className="inline-block mb-4">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
+                <Star className="w-4 h-4 mr-2" />
+                Solução Open Source
+              </span>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CodeFlow Solutions</h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400">{t.register.description}</p>
           </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="text-center">
+          <Card className="dark:bg-gray-800/50 dark:border-gray-700 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300">
+            <CardHeader className="text-center space-y-4">
               <CardTitle className="dark:text-white text-2xl">{t.register.title}</CardTitle>
               <CardDescription className="dark:text-gray-400">
                 {t.register.description}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <Button
                 onClick={handleGoogleLogin}
-                className="w-full mb-4 bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
+                className="w-full mb-4 bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-105"
                 disabled={googleLoading}
               >
                 <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -126,7 +132,7 @@ const Register = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="dark:bg-gray-700/50 dark:border-gray-600 dark:text-white transition-all duration-300 focus:ring-2 focus:ring-primary/50"
                   />
                 </div>
 
@@ -138,7 +144,7 @@ const Register = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="dark:bg-gray-700/50 dark:border-gray-600 dark:text-white transition-all duration-300 focus:ring-2 focus:ring-primary/50"
                   />
                 </div>
 
@@ -150,7 +156,7 @@ const Register = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="dark:bg-gray-700/50 dark:border-gray-600 dark:text-white transition-all duration-300 focus:ring-2 focus:ring-primary/50"
                   />
                 </div>
 
@@ -162,11 +168,11 @@ const Register = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="dark:bg-gray-700/50 dark:border-gray-600 dark:text-white transition-all duration-300 focus:ring-2 focus:ring-primary/50"
                   />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105" disabled={loading}>
                   {loading ? t.register.processing : t.register.submitButton}
                 </Button>
               </form>
@@ -174,7 +180,7 @@ const Register = () => {
             <CardFooter className="flex justify-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {t.register.haveAccount}{' '}
-                <Link to="/login" className="text-primary hover:underline dark:text-primary-foreground">
+                <Link to="/login" className="text-primary hover:underline dark:text-primary-foreground transition-colors">
                   {t.register.login}
                 </Link>
               </p>

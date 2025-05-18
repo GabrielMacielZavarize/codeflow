@@ -1,4 +1,3 @@
-
 # Controle de Acesso Baseado em Papéis (RBAC)
 
 Este documento detalha o sistema de controle de acesso baseado em papéis (Role-Based Access Control - RBAC) implementado no sistema de priorização de tarefas da CodeFlow Solutions.
@@ -274,7 +273,7 @@ service cloud.firestore {
     
     // Regras para logs de auditoria
     match /auditLogs/{logId} {
-      allow read: if request.auth != null && isAdmin();
+      allow read: if request.auth != null;  // Permitindo leitura para qualquer usuário autenticado
       allow write: if false; // Somente escrita via Cloud Functions
     }
   }

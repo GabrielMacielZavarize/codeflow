@@ -14,11 +14,12 @@ import { cn } from '@/lib/utils';
 import { Tarefa } from '@/lib/firebase/tarefas';
 import { MembroEquipe } from '@/lib/firebase/membros';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskAdded: (task: Tarefa) => void;
+  onTaskAdded: (task: any) => Promise<boolean>;
   teamMembers: MembroEquipe[];
   selectedDate?: Date | null;
 }
@@ -31,14 +32,15 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
   selectedDate
 }) => {
   const { currentUser } = useAuth();
-  const [titulo, setTitulo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [prioridade, setPrioridade] = useState<string>('media');
-  const [status, setStatus] = useState<string>('pendente');
-  const [responsavelId, setResponsavelId] = useState<string>('');
-  const [dataInicio, setDataInicio] = useState<Date | undefined>(selectedDate || new Date());
-  const [dataFim, setDataFim] = useState<Date | undefined>(undefined);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    titulo: '',
+    descricao: '',
+    prioridade: 'media',
+    status: 'pendente',
+    responsavelId: '',
+    dataInicio: new Date().toISOString().split('T')[0],
+    dataFim: ''
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -51,48 +53,56 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+
+    if (!currentUser) {
+      toast.error('Usuário não autenticado');
+      return;
+    }
 
     try {
-      if (!currentUser) {
-        throw new Error('Usuário não autenticado');
-      }
-
-      const novaTarefa: Omit<Tarefa, 'id'> = {
-        titulo,
-        descricao,
-        prioridade,
-        status,
-        responsavelId,
-        responsavelNome: teamMembers.find(m => m.id === responsavelId)?.nome || '',
-        responsavelAvatar: teamMembers.find(m => m.id === responsavelId)?.avatar || '',
-        dataCriacao: new Date(),
-        dataAtualizacao: new Date(),
-        dataInicio: new Date(),
-        dataFim: dataFim ? new Date(dataFim) : undefined,
-        comentarios: [],
-        concluida: false,
-        userId: currentUser.uid
+      const membroResponsavel = teamMembers.find(member => member.id === formData.responsavelId);
+      const novaTarefa = {
+        ...formData,
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        dataInicio: new Date(formData.dataInicio),
+        dataFim: formData.dataFim ? new Date(formData.dataFim) : null,
+        responsavelId: formData.responsavelId || currentUser.uid,
+        responsavelNome: membroResponsavel?.nome || currentUser.displayName || currentUser.email || 'Usuário',
+        responsavelAvatar: membroResponsavel?.avatar || `https://unavatar.io/github/${membroResponsavel?.nome || currentUser.displayName}`
       };
 
-      await onTaskAdded(novaTarefa);
-      onClose();
-      resetForm();
+      const taskAdded = await onTaskAdded(novaTarefa);
+
+      if (taskAdded) {
+        toast.success('Tarefa criada com sucesso!');
+        onClose();
+        setFormData({
+          titulo: '',
+          descricao: '',
+          prioridade: 'media',
+          status: 'pendente',
+          responsavelId: '',
+          dataInicio: new Date().toISOString().split('T')[0],
+          dataFim: ''
+        });
+      }
     } catch (error) {
       console.error('Erro ao criar tarefa:', error);
-    } finally {
-      setIsSubmitting(false);
+      toast.error('Erro ao criar tarefa. Tente novamente.');
     }
   };
 
   const handleClose = () => {
-    setTitulo('');
-    setDescricao('');
-    setPrioridade('media');
-    setStatus('pendente');
-    setResponsavelId('');
-    setDataInicio(new Date());
-    setDataFim(undefined);
+    setFormData({
+      titulo: '',
+      descricao: '',
+      prioridade: 'media',
+      status: 'pendente',
+      responsavelId: '',
+      dataInicio: new Date().toISOString().split('T')[0],
+      dataFim: ''
+    });
     onClose();
   };
 
@@ -109,16 +119,6 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
       default:
         return <AlertCircle className="h-4 w-4 text-gray-500" />;
     }
-  };
-
-  const resetForm = () => {
-    setTitulo('');
-    setDescricao('');
-    setPrioridade('media');
-    setStatus('pendente');
-    setResponsavelId('');
-    setDataInicio(new Date());
-    setDataFim(undefined);
   };
 
   return (
@@ -143,8 +143,8 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
               <Label htmlFor="titulo">Título</Label>
               <Input
                 id="titulo"
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
+                value={formData.titulo}
+                onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
                 placeholder="Digite o título da tarefa"
                 required
                 className="w-full"
@@ -153,7 +153,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="responsavel">Responsável</Label>
-              <Select value={responsavelId} onValueChange={setResponsavelId}>
+              <Select value={formData.responsavelId} onValueChange={(value) => setFormData({ ...formData, responsavelId: value })}>
                 <SelectTrigger id="responsavel" className="w-full">
                   <SelectValue placeholder="Selecione um responsável" />
                 </SelectTrigger>
@@ -172,8 +172,8 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             <Label htmlFor="descricao">Descrição</Label>
             <Textarea
               id="descricao"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
+              value={formData.descricao}
+              onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
               placeholder="Descreva os detalhes da tarefa"
               className="min-h-[100px]"
             />
@@ -182,7 +182,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Prioridade</Label>
-              <Select value={prioridade} onValueChange={setPrioridade}>
+              <Select value={formData.prioridade} onValueChange={(value) => setFormData({ ...formData, prioridade: value })}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione a prioridade" />
                 </SelectTrigger>
@@ -202,7 +202,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
             <div className="space-y-2">
               <Label>Status</Label>
-              <Select value={status} onValueChange={setStatus}>
+              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
@@ -237,18 +237,18 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !dataInicio && "text-muted-foreground"
+                      !formData.dataInicio && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dataInicio ? format(dataInicio, "PPP", { locale: ptBR }) : "Selecione a data"}
+                    {formData.dataInicio ? format(new Date(formData.dataInicio), "PPP", { locale: ptBR }) : "Selecione a data"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={dataInicio}
-                    onSelect={setDataInicio}
+                    selected={new Date(formData.dataInicio)}
+                    onSelect={(date) => setFormData({ ...formData, dataInicio: date?.toISOString().split('T')[0] || '' })}
                     initialFocus
                     locale={ptBR}
                   />
@@ -264,21 +264,21 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !dataFim && "text-muted-foreground"
+                      !formData.dataFim && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dataFim ? format(dataFim, "PPP", { locale: ptBR }) : "Selecione a data"}
+                    {formData.dataFim ? format(new Date(formData.dataFim), "PPP", { locale: ptBR }) : "Selecione a data"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={dataFim}
-                    onSelect={setDataFim}
+                    selected={formData.dataFim ? new Date(formData.dataFim) : undefined}
+                    onSelect={(date) => setFormData({ ...formData, dataFim: date?.toISOString().split('T')[0] || '' })}
                     initialFocus
                     locale={ptBR}
-                    disabled={(date) => date < (dataInicio || new Date())}
+                    disabled={(date) => date < (new Date(formData.dataInicio) || new Date())}
                   />
                 </PopoverContent>
               </Popover>
@@ -290,16 +290,14 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
               type="button"
               variant="outline"
               onClick={handleClose}
-              disabled={isSubmitting}
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
               className="bg-primary hover:bg-primary/90"
             >
-              {isSubmitting ? 'Criando...' : 'Criar Tarefa'}
+              Criar Tarefa
             </Button>
           </div>
         </form>

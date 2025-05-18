@@ -169,15 +169,26 @@ const Dashboard: React.FC = () => {
 
   const handleNewTask = async (taskData: Omit<Tarefa, 'id'>) => {
     try {
-      const novaTarefa = await tarefasService.criarTarefa(taskData);
+      if (!currentUser) {
+        toast.error('Usuário não autenticado');
+        return false;
+      }
+
+      const novaTarefa = await tarefasService.criarTarefa({
+        ...taskData,
+        userId: currentUser.uid,
+        userEmail: currentUser.email || ''
+      });
+
       if (!novaTarefa.id) {
         throw new Error('Tarefa criada sem ID');
       }
-      // Não precisamos adicionar manualmente ao estado local
-      // O listener do Firestore irá atualizar automaticamente
+
+      return true;
     } catch (error) {
       console.error('Erro ao criar tarefa:', error);
       toast.error('Erro ao criar tarefa');
+      return false;
     }
   };
 
@@ -444,19 +455,51 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white animate-slide-up">
-            {t.dashboard.title}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 animate-slide-up delay-100">
-            {t.dashboard.description}
-          </p>
+      <div className="flex flex-col gap-6">
+        {/* Seção de Boas-vindas */}
+        <div className="bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 rounded-xl p-6 backdrop-blur-sm border border-primary/10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16 border-2 border-primary/20 shadow-lg">
+                  <AvatarImage src={currentUser?.photoURL || `https://unavatar.io/github/${currentUser?.displayName}`} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                    {currentUser?.displayName?.[0] || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-gray-600 dark:text-gray-400 text-lg">
+                      Bem-vindo de volta, <span className="font-semibold text-primary">{currentUser?.displayName || 'Usuário'}</span>! 👋
+                    </p>
+                    <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
+                      {new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite'}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Sua Equipe tem {tasks.filter(t => t.status === 'pendente').length} tarefas pendentes e {tasks.filter(t => t.status === 'em_progresso').length} em progresso
+                  </p>
+                </div>
+              </div>
+            </div>
+            <Button className="bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105 w-full sm:w-auto" onClick={() => setIsAddTaskModalOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              {t.dashboard.addTask}
+            </Button>
+          </div>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 animate-slide-up delay-200 w-full sm:w-auto" onClick={() => setIsAddTaskModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t.dashboard.addTask}
-        </Button>
+
+        {/* Seção do Painel */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white animate-slide-up">
+              {t.dashboard.title}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1 animate-slide-up delay-100">
+              {t.dashboard.description}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
@@ -525,8 +568,10 @@ const Dashboard: React.FC = () => {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="flex items-center space-x-2">
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={task.responsavelAvatar?.startsWith('https://') ? task.responsavelAvatar : `https://unavatar.io/github/${task.responsavelAvatar}`} />
-                            <AvatarFallback>{task.responsavelNome?.[0] || '?'}</AvatarFallback>
+                            <AvatarImage src={task.responsavelAvatar} />
+                            <AvatarFallback className="bg-primary/10 text-primary">
+                              {task.responsavelNome?.[0] || '?'}
+                            </AvatarFallback>
                           </Avatar>
                           <div>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">{task.titulo}</p>
@@ -683,8 +728,10 @@ const Dashboard: React.FC = () => {
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={task.responsavelAvatar?.startsWith('https://') ? task.responsavelAvatar : `https://unavatar.io/github/${task.responsavelAvatar}`} />
-                          <AvatarFallback>{task.responsavelNome?.[0] || '?'}</AvatarFallback>
+                          <AvatarImage src={task.responsavelAvatar} />
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            {task.responsavelNome?.[0] || '?'}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
                           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{task.titulo}</h3>

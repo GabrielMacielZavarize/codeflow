@@ -7,6 +7,7 @@ import {
 } from './firestore';
 import { Timestamp, addDoc, collection, onSnapshot, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from './config';
+import { logActivity } from '@/services/auditService';
 
 export interface Comentario {
     id: string;
@@ -27,6 +28,7 @@ export interface Tarefa {
     dataInicio: Date;
     dataFim: Date;
     userId: string; // Criador da tarefa
+    userEmail: string; // Email do criador da tarefa
     responsavelId: string; // Responsável pela tarefa
     responsavelNome: string;
     responsavelAvatar?: string;
@@ -71,6 +73,16 @@ export const tarefasService = {
 
             const docRef = await addDoc(collection(db, COLECAO_TAREFAS), novaTarefa);
 
+            // Registra a atividade de criação da tarefa
+            await logActivity(
+                tarefa.userId,
+                tarefa.userEmail || '',
+                'create',
+                'task',
+                docRef.id,
+                `Tarefa "${tarefa.titulo}" foi criada`
+            );
+
             return {
                 ...tarefa,
                 id: docRef.id,
@@ -113,22 +125,83 @@ export const tarefasService = {
 
     // Atualizar uma tarefa
     async atualizarTarefa(tarefaId: string, dados: Partial<Tarefa>) {
-        const dadosAtualizados = {
-            ...dados,
-            dataAtualizacao: converterParaFirestore(new Date()),
-            ...(dados.dataInicio && {
-                dataInicio: converterParaFirestore(dados.dataInicio instanceof Date ? dados.dataInicio : new Date(dados.dataInicio))
-            }),
-            ...(dados.dataFim && {
-                dataFim: converterParaFirestore(dados.dataFim instanceof Date ? dados.dataFim : new Date(dados.dataFim))
-            })
-        };
-        return await updateDocument(COLECAO_TAREFAS, tarefaId, dadosAtualizados);
+        try {
+            const tarefaAtual = await getDocument(COLECAO_TAREFAS, tarefaId) as Tarefa;
+            if (!tarefaAtual) {
+                throw new Error('Tarefa não encontrada');
+            }
+
+            const dadosAtualizados = {
+                ...dados,
+                dataAtualizacao: converterParaFirestore(new Date()),
+                ...(dados.dataInicio && {
+                    dataInicio: converterParaFirestore(dados.dataInicio instanceof Date ? dados.dataInicio : new Date(dados.dataInicio))
+                }),
+                ...(dados.dataFim && {
+                    dataFim: converterParaFirestore(dados.dataFim instanceof Date ? dados.dataFim : new Date(dados.dataFim))
+                })
+            };
+
+            await updateDocument(COLECAO_TAREFAS, tarefaId, dadosAtualizados);
+
+            // Registra a atividade de atualização da tarefa
+            const details = [];
+            if (dados.titulo && dados.titulo !== tarefaAtual.titulo) {
+                details.push(`título alterado para "${dados.titulo}"`);
+            }
+            if (dados.status && dados.status !== tarefaAtual.status) {
+                details.push(`status alterado para "${dados.status}"`);
+            }
+            if (dados.prioridade && dados.prioridade !== tarefaAtual.prioridade) {
+                details.push(`prioridade alterada para "${dados.prioridade}"`);
+            }
+            if (dados.responsavelId && dados.responsavelId !== tarefaAtual.responsavelId) {
+                details.push(`responsável alterado para "${dados.responsavelNome}"`);
+            }
+
+            if (details.length > 0) {
+                await logActivity(
+                    tarefaAtual.userId,
+                    tarefaAtual.userEmail || '',
+                    'update',
+                    'task',
+                    tarefaId,
+                    `Tarefa "${tarefaAtual.titulo}": ${details.join(', ')}`
+                );
+            }
+
+            return await getDocument(COLECAO_TAREFAS, tarefaId) as Tarefa;
+        } catch (error) {
+            console.error('Erro ao atualizar tarefa:', error);
+            throw error;
+        }
     },
 
     // Deletar uma tarefa
     async deletarTarefa(tarefaId: string) {
-        return await deleteDocument(COLECAO_TAREFAS, tarefaId);
+        try {
+            const tarefa = await getDocument(COLECAO_TAREFAS, tarefaId) as Tarefa;
+            if (!tarefa) {
+                throw new Error('Tarefa não encontrada');
+            }
+
+            await deleteDocument(COLECAO_TAREFAS, tarefaId);
+
+            // Registra a atividade de exclusão da tarefa
+            await logActivity(
+                tarefa.userId,
+                tarefa.userEmail || '',
+                'delete',
+                'task',
+                tarefaId,
+                `Tarefa "${tarefa.titulo}" foi excluída`
+            );
+
+            return true;
+        } catch (error) {
+            console.error('Erro ao deletar tarefa:', error);
+            throw error;
+        }
     },
 
     // Adicionar comentário

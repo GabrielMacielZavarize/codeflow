@@ -39,12 +39,14 @@ export const checkPermission = (role: string, permission: string): boolean => {
   //   manager: [
   //     'canManageTeam',
   //     'canViewReports',
-  //     'canAssignTasks'
+  //     'canAssignTasks',
+  //     'canViewAuditLogs'
   //   ],
   //   user: [
   //     'canCreateTasks',
   //     'canEditOwnTasks',
-  //     'canViewAssignedTasks'
+  //     'canViewAssignedTasks',
+  //     'canViewAuditLogs'
   //   ]
   // };
   // return !!permissions[role] && permissions[role].includes(permission);

@@ -49,7 +49,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     </LanguageContext.Provider>
   );
 };
-
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {
@@ -57,3 +56,4 @@ export const useLanguage = () => {
   }
   return context;
 };
+

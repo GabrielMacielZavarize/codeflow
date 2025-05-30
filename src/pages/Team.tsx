@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Users, Briefcase, Calendar, Plus, Trash2 } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { membrosService, MembroEquipe } from '@/lib/firebase/membros';
 import { AddMemberModal } from '@/components/AddMemberModal';
 import { tarefasService, Tarefa } from '@/lib/firebase/tarefas';
 import { onSnapshot, collection, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { TeamMemberCard } from '@/components/TeamMemberCard';
 import TeamMemberModal from '@/components/TeamMemberModal';
+import { TeamHeader } from '@/components/team/TeamHeader';
+import { TeamStats } from '@/components/team/TeamStats';
+import { TeamMembersList } from '@/components/team/TeamMembersList';
 
 const Team = () => {
   const { currentUser } = useAuth();
@@ -158,76 +155,20 @@ const Team = () => {
 
   return (
     <div className="container mx-auto px-4 py-4 sm:py-8 space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold dark:text-white animate-slide-up">{t.team.title}</h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 animate-slide-up delay-100">{t.team.description}</p>
-        </div>
-        <Button onClick={() => setIsAddMemberModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 animate-slide-up delay-200">
-          <Plus className="h-4 w-4" />
-          {t.team.addMember}
-        </Button>
-      </div>
+      <TeamHeader onAddMember={() => setIsAddMemberModalOpen(true)} />
 
-      {/* Estatísticas da Equipe */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">{t.team.totalMembers}</p>
-                <h3 className="text-xl sm:text-2xl font-bold mt-1">{teamMembers.length}</h3>
-              </div>
-              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
+      <TeamStats
+        totalMembers={teamMembers.length}
+        assignedTasks={tasks.filter(task => task.responsavelId).length}
+      />
 
-        <Card>
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">{t.team.assignedTasks}</p>
-                <h3 className="text-xl sm:text-2xl font-bold mt-1">
-                  {tasks.filter(task => task.responsavelId).length}
-                </h3>
-              </div>
-              <Briefcase className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="sm:col-span-2 lg:col-span-1">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">{t.team.teamMembers}</p>
-                <h3 className="text-xl sm:text-2xl font-bold mt-1">{teamMembers.length}</h3>
-              </div>
-              <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Lista de Membros */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {isLoadingMembers ? (
-          <div className="col-span-full text-center py-8">
-            <p className="text-gray-500">Carregando membros da equipe...</p>
-          </div>
-        ) : (
-          teamMembers.map((member) => (
-            <TeamMemberCard
-              key={member.id}
-              member={member}
-              tasks={tasks}
-              onDelete={handleDeleteMember}
-              onUpdate={handleUpdateMember}
-            />
-          ))
-        )}
-      </div>
+      <TeamMembersList
+        members={teamMembers}
+        tasks={tasks}
+        isLoading={isLoadingMembers}
+        onDeleteMember={handleDeleteMember}
+        onUpdateMember={handleUpdateMember}
+      />
 
       <AddMemberModal
         isOpen={isAddMemberModalOpen}

@@ -1,5 +1,5 @@
-import { Task } from './taskService';
-import { subDays, format, parseISO, startOfWeek, endOfWeek, eachDayOfInterval, eachWeekOfInterval, isValid } from 'date-fns';
+import { Task } from '../contexts/TaskContext';
+import { format, subDays, subMonths, startOfDay, endOfDay, eachDayOfInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 // Interface para dados do Gráfico de Pizza
@@ -12,93 +12,170 @@ export interface PieChartData {
 // Interface para dados do Gráfico de Barras
 export interface BarChartData {
   name: string;
-  tasks: number;
+  criadas: number;
+  concluidas: number;
+  atrasadas: number;
 }
 
 // Interface para dados do Gráfico de Linha
 export interface LineChartData {
   date: string;
-  completedTasks: number;
+  criadas: number;
+  concluidas: number;
 }
 
-// Função auxiliar para converter string em Date de forma segura
-const parseDate = (date: Date | string | undefined): Date | null => {
-  if (!date) return null;
-
-  try {
-    if (date instanceof Date) {
-      return isValid(date) ? date : null;
-    }
-
-    const parsedDate = new Date(date);
-    return isValid(parsedDate) ? parsedDate : null;
-  } catch {
-    return null;
-  }
+// Função auxiliar para converter Timestamp em Date
+const timestampToDate = (timestamp: any): Date => {
+  if (!timestamp) return new Date();
+  return timestamp.toDate();
 };
 
 // Gera dados para o gráfico de pizza baseado nas tarefas existentes
 export const getPieChartData = (tasks: Task[]): PieChartData[] => {
-  const concluidas = tasks.filter(task => task.status === 'concluida').length;
-  const pendentes = tasks.filter(task => task.status === 'pendente').length;
-  const atrasadas = tasks.filter(task => {
-    const hoje = new Date();
-    return task.dataFim && task.dataFim < hoje && task.status !== 'concluida';
-  }).length;
+  const statusCount = tasks.reduce((acc, task) => {
+    acc[task.status] = (acc[task.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
-  return [
-    { name: 'Concluídas', value: concluidas, color: '#22C55E' },
-    { name: 'Pendentes', value: pendentes, color: '#F59E0B' },
-    { name: 'Atrasadas', value: atrasadas, color: '#EF4444' }
-  ];
+  const colors = {
+    pendente: '#F59E0B',
+    concluida: '#10B981',
+    atrasada: '#EF4444',
+    em_progresso: '#3B82F6'
+  };
+
+  const statusLabels = {
+    pendente: 'Pendente',
+    concluida: 'Concluída',
+    atrasada: 'Atrasada',
+    em_progresso: 'Em Progresso'
+  };
+
+  return Object.entries(statusCount)
+    .filter(([_, value]) => value > 0)
+    .map(([status, value]) => ({
+      name: statusLabels[status as keyof typeof statusLabels] || status,
+      value,
+      color: colors[status as keyof typeof colors] || '#6B7280'
+    }));
 };
 
-// Gera dados reais para o gráfico de barras (tarefas por semana)
+// Gera dados reais para o gráfico de barras (tarefas por mês)
 export const getBarChartData = (tasks: Task[]): BarChartData[] => {
-  const today = new Date();
-  const fourWeeksAgo = subDays(today, 28);
+  const lastSixMonths = Array.from({ length: 6 }, (_, i) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    return date.toLocaleString('pt-BR', { month: 'short' });
+  }).reverse();
 
-  // Obtém todas as semanas no intervalo
-  const weeks = eachWeekOfInterval(
-    { start: fourWeeksAgo, end: today },
-    { weekStartsOn: 1 } // Segunda-feira
-  );
-
-  return weeks.map(weekStart => {
-    const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-    const weekTasks = tasks.filter(task => {
-      const taskDate = parseDate(task.dataCriacao);
-      if (!taskDate) return false;
-      return taskDate >= weekStart && taskDate <= weekEnd;
+  return lastSixMonths.map(month => {
+    const monthTasks = tasks.filter(task => {
+      const taskDate = timestampToDate(task.dataCriacao);
+      return taskDate.toLocaleString('pt-BR', { month: 'short' }) === month;
     });
 
     return {
-      name: `Sem ${format(weekStart, 'w')}`,
-      tasks: weekTasks.length
+      name: month,
+      criadas: monthTasks.length,
+      concluidas: monthTasks.filter(task => task.status === 'concluida').length,
+      atrasadas: monthTasks.filter(task => task.status === 'atrasada').length
     };
   });
 };
 
-// Gera dados reais para o gráfico de linha (evolução de tarefas concluídas)
+// Gera dados reais para o gráfico de linha (evolução de tarefas)
 export const getLineChartData = (tasks: Task[]): LineChartData[] => {
-  const today = new Date();
-  const tenDaysAgo = subDays(today, 9);
+  const lastSevenDays = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    return date.toISOString().split('T')[0];
+  }).reverse();
 
-  // Obtém todos os dias no intervalo
-  const days = eachDayOfInterval({ start: tenDaysAgo, end: today });
-
-  return days.map(date => {
-    const completedTasks = tasks.filter(task => {
-      const taskDate = parseDate(task.dataCriacao);
-      if (!taskDate) return false;
-
-      const isSameDay = format(taskDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
-      return isSameDay && task.status === 'concluida';
-    }).length;
+  return lastSevenDays.map(date => {
+    const dayTasks = tasks.filter(task => {
+      const taskDate = timestampToDate(task.dataCriacao).toISOString().split('T')[0];
+      return taskDate === date;
+    });
 
     return {
-      date: format(date, 'dd/MM', { locale: ptBR }),
-      completedTasks
+      date: new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      criadas: dayTasks.length,
+      concluidas: dayTasks.filter(task => task.status === 'concluida').length
+    };
+  });
+};
+
+export const getPriorityChartData = (tasks: Task[]): PieChartData[] => {
+  const priorityCount = tasks.reduce((acc, task) => {
+    acc[task.prioridade] = (acc[task.prioridade] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const priorityLabels = {
+    alta: 'Alta',
+    media: 'Média',
+    baixa: 'Baixa'
+  };
+
+  const data = [
+    { name: priorityLabels.alta, value: priorityCount['alta'] || 0, color: '#EF4444' },
+    { name: priorityLabels.media, value: priorityCount['media'] || 0, color: '#F59E0B' },
+    { name: priorityLabels.baixa, value: priorityCount['baixa'] || 0, color: '#10B981' }
+  ];
+
+  return data.filter(item => item.value > 0);
+};
+
+export const getResponsibleChartData = (tasks: Task[]): PieChartData[] => {
+  const responsibleCount = tasks.reduce((acc, task) => {
+    if (task.responsavelNome) {
+      acc[task.responsavelNome] = (acc[task.responsavelNome] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Ordena por quantidade de tarefas e pega os 5 primeiros
+  const sortedResponsibles = Object.entries(responsibleCount)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5);
+
+  const colors = [
+    '#3B82F6', // Azul
+    '#10B981', // Verde
+    '#F59E0B', // Laranja
+    '#EF4444', // Vermelho
+    '#8B5CF6'  // Roxo
+  ];
+
+  return sortedResponsibles.map(([name, value], index) => ({
+    name: name.split(' ')[0], // Pega apenas o primeiro nome
+    value,
+    color: colors[index % colors.length]
+  }));
+};
+
+export const getCompletionRateData = (tasks: Task[]): LineChartData[] => {
+  const last30Days = eachDayOfInterval({
+    start: subDays(new Date(), 29),
+    end: new Date()
+  });
+
+  return last30Days.map(date => {
+    const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+
+    const dayTasks = tasks.filter(task => {
+      const taskDate = timestampToDate(task.dataCriacao);
+      return taskDate >= startOfDay && taskDate <= endOfDay;
+    });
+
+    const completedTasks = dayTasks.filter(t => t.status === 'concluida').length;
+    const completionRate = dayTasks.length > 0 ? (completedTasks / dayTasks.length) * 100 : 0;
+
+    return {
+      date: format(date, 'dd/MM'),
+      criadas: dayTasks.length,
+      concluidas: completedTasks
     };
   });
 };

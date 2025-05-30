@@ -1,300 +1,140 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { getTasks, Task } from '@/services/taskService';
-import { getPieChartData, getBarChartData, getLineChartData } from '../services/analyticsService';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react';
-import { subDays, subMonths, subYears } from 'date-fns';
-import {
-  PieChart,
-  Pie,
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Cell,
-  Area,
-  AreaChart
-} from 'recharts';
+import React, { useState, useEffect } from 'react';
+import { useTasks } from '../contexts/TaskContext';
+import { ClipboardList, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import MetricCard from '../components/analytics/MetricCard';
+import PieChartCard from '../components/analytics/PieChartCard';
+import BarChartCard from '../components/analytics/BarChartCard';
+import AreaChartCard from '../components/analytics/AreaChartCard';
+import { getPieChartData, getBarChartData, getLineChartData, getResponsibleChartData, getPriorityChartData, getCompletionRateData } from '../services/analyticsService';
 
-const Analytics = () => {
-  const { currentUser } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [periodo, setPeriodo] = useState('7d');
+const Analytics: React.FC = () => {
+  const { tasks, loading: tasksLoading } = useTasks();
+  const [period, setPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+  const [filteredTasks, setFilteredTasks] = useState(tasks);
 
+  // Atualiza os dados filtrados quando tasks ou period mudar
   useEffect(() => {
-    const loadTasks = async () => {
-      if (!currentUser) {
-        setIsLoading(false);
-        return;
+    const filtered = tasks.filter(task => {
+      const taskDate = task.dataCriacao.toDate();
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - taskDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      switch (period) {
+        case '7d':
+          return diffDays <= 7;
+        case '30d':
+          return diffDays <= 30;
+        case '90d':
+          return diffDays <= 90;
+        case '1y':
+          return diffDays <= 365;
+        default:
+          return true;
       }
-
-      setIsLoading(true);
-      try {
-        const fetchedTasks = await getTasks();
-        setTasks(fetchedTasks);
-      } catch (error) {
-        console.error('Erro ao carregar tarefas:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadTasks();
-  }, [currentUser]);
-
-  // Filtra as tarefas com base no período selecionado
-  const filteredTasks = useMemo(() => {
-    const today = new Date();
-    let startDate: Date;
-
-    switch (periodo) {
-      case '7d':
-        startDate = subDays(today, 7);
-        break;
-      case '30d':
-        startDate = subDays(today, 30);
-        break;
-      case '90d':
-        startDate = subMonths(today, 3);
-        break;
-      case '1y':
-        startDate = subYears(today, 1);
-        break;
-      default:
-        startDate = subDays(today, 7);
-    }
-
-    return tasks.filter(task => {
-      const taskDate = task.dataCriacao instanceof Date ? task.dataCriacao : new Date(task.dataCriacao);
-      return taskDate >= startDate && taskDate <= today;
     });
-  }, [tasks, periodo]);
 
-  const pieChartData = getPieChartData(filteredTasks);
-  const barChartData = getBarChartData(filteredTasks);
-  const lineChartData = getLineChartData(filteredTasks);
+    setFilteredTasks(filtered);
+  }, [tasks, period]);
 
-  const tarefasConcluidas = filteredTasks.filter(task => task.status === 'concluida').length;
-  const tarefasPendentes = filteredTasks.filter(task => task.status === 'pendente').length;
-  const tarefasAtrasadas = filteredTasks.filter(task => {
-    const hoje = new Date();
-    return task.dataFim && task.dataFim < hoje && task.status !== 'concluida';
-  }).length;
-  const taxaConclusao = filteredTasks.length > 0 ? ((tarefasConcluidas / filteredTasks.length) * 100).toFixed(1) : 0;
+  const totalTasks = filteredTasks.length;
+  const completedTasks = filteredTasks.filter(task => task.status === 'concluida').length;
+  const pendingTasks = filteredTasks.filter(task => task.status === 'pendente').length;
+  const overdueTasks = filteredTasks.filter(task => task.status === 'atrasada').length;
+  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  if (isLoading) {
+  if (tasksLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Carregando...</p>
-        </div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Análises</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Visualize e analise dados sobre suas tarefas
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Select value={periodo} onValueChange={setPeriodo}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Selecione o período" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">Últimos 7 dias</SelectItem>
-                <SelectItem value="30d">Últimos 30 dias</SelectItem>
-                <SelectItem value="90d">Últimos 90 dias</SelectItem>
-                <SelectItem value="1y">Último ano</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Análises</h1>
+        <div className="flex space-x-2">
+          {['7d', '30d', '90d', '1y'].map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p as '7d' | '30d' | '90d' | '1y')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${period === p
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                }`}
+            >
+              {p === '7d' ? '7 dias' : p === '30d' ? '30 dias' : p === '90d' ? '90 dias' : '1 ano'}
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* Cards de métricas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-white dark:bg-gray-800">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total de Tarefas</p>
-                  <h3 className="text-2xl font-bold mt-1">{filteredTasks.length}</h3>
-                </div>
-                <Calendar className="h-8 w-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <MetricCard
+          title="Total de Tarefas"
+          value={totalTasks}
+          icon={ClipboardList}
+          trend={{ value: 12, isPositive: true }}
+        />
+        <MetricCard
+          title="Taxa de Conclusão"
+          value={`${completionRate}%`}
+          icon={CheckCircle}
+          trend={{ value: 5, isPositive: true }}
+        />
+        <MetricCard
+          title="Tarefas Pendentes"
+          value={pendingTasks}
+          icon={Clock}
+          trend={{ value: 3, isPositive: false }}
+        />
+        <MetricCard
+          title="Tarefas Atrasadas"
+          value={overdueTasks}
+          icon={AlertCircle}
+          trend={{ value: 2, isPositive: false }}
+        />
+      </div>
 
-          <Card className="bg-white dark:bg-gray-800">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Taxa de Conclusão</p>
-                  <h3 className="text-2xl font-bold mt-1">{taxaConclusao}%</h3>
-                </div>
-                <TrendingUp className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <PieChartCard
+          data={getPieChartData(filteredTasks)}
+          title="Distribuição por Status"
+          description="Visualização da distribuição de tarefas por status"
+        />
+        <PieChartCard
+          data={getPriorityChartData(filteredTasks)}
+          title="Distribuição por Prioridade"
+          description="Visualização da distribuição de tarefas por prioridade"
+        />
+      </div>
 
-          <Card className="bg-white dark:bg-gray-800">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Tarefas Pendentes</p>
-                  <h3 className="text-2xl font-bold mt-1">{tarefasPendentes}</h3>
-                </div>
-                <Clock className="h-8 w-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <BarChartCard
+          data={getBarChartData(filteredTasks)}
+          title="Tarefas por Mês"
+          description="Quantidade de tarefas criadas, concluídas e atrasadas por mês"
+        />
+        <PieChartCard
+          data={getResponsibleChartData(filteredTasks)}
+          title="Tarefas por Responsável"
+          description="Top 5 responsáveis com mais tarefas"
+        />
+      </div>
 
-          <Card className="bg-white dark:bg-gray-800">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Tarefas Atrasadas</p>
-                  <h3 className="text-2xl font-bold mt-1">{tarefasAtrasadas}</h3>
-                </div>
-                <AlertCircle className="h-8 w-8 text-red-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Gráficos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-white dark:bg-gray-800">
-            <CardHeader className="border-b border-gray-200 dark:border-gray-700">
-              <CardTitle className="text-xl text-gray-900 dark:text-white">Distribuição de Status</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieChartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {pieChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        border: 'none',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                      formatter={(value) => [`${value} tarefas`, 'Quantidade']}
-                    />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white dark:bg-gray-800">
-            <CardHeader className="border-b border-gray-200 dark:border-gray-700">
-              <CardTitle className="text-xl text-gray-900 dark:text-white">Tarefas por Semana</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={barChartData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        border: 'none',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                      formatter={(value) => [`${value} tarefas`, 'Quantidade']}
-                    />
-                    <Legend />
-                    <Bar dataKey="tasks" name="Tarefas" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Gráfico de evolução */}
-        <Card className="w-full bg-white dark:bg-gray-800">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-700">
-            <CardTitle className="text-xl text-gray-900 dark:text-white">Evolução de Tarefas</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={lineChartData}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" stroke="#6b7280" />
-                  <YAxis stroke="#6b7280" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                    formatter={(value) => [`${value} tarefas`, 'Concluídas']}
-                  />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="completedTasks"
-                    name="Tarefas Concluídas"
-                    stroke="#0EA5E9"
-                    fillOpacity={1}
-                    fill="url(#colorCompleted)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-6">
+        <AreaChartCard
+          data={getLineChartData(filteredTasks)}
+          title="Evolução de Tarefas"
+          description="Evolução do número de tarefas criadas e concluídas ao longo do tempo"
+        />
+        <AreaChartCard
+          data={getCompletionRateData(filteredTasks)}
+          title="Taxa de Conclusão ao Longo do Tempo"
+          description="Evolução da taxa de conclusão de tarefas nos últimos 30 dias"
+        />
       </div>
     </div>
   );

@@ -19,21 +19,21 @@ export interface TasksByMemberData {
 export const getMonthlyTasksReport = async (): Promise<MonthlyTasksData[]> => {
   const today = new Date();
   const data: MonthlyTasksData[] = [];
-  
+
   // Gera dados para os últimos 6 meses
   for (let i = 5; i >= 0; i--) {
     const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
     const monthName = format(date, 'MMM', { locale: ptBR });
-    
+
     // Valores aleatórios entre 5 e 30 para tarefas
     const tasks = Math.floor(Math.random() * 25) + 5;
-    
+
     data.push({
       month: monthName,
       tasks
     });
   }
-  
+
   return data;
 };
 

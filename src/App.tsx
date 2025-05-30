@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { TaskProvider } from "./contexts/TaskContext";
 import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -59,129 +60,131 @@ const App = () => (
       <AuthProvider>
         <ThemeProvider>
           <LanguageProvider>
-            <TooltipProvider>
-              <ScrollToTop />
-              <Toaster />
-              <Routes>
-                {/* Public home page */}
-                <Route path="/" element={<Home />} />
+            <TaskProvider>
+              <TooltipProvider>
+                <ScrollToTop />
+                <Toaster />
+                <Routes>
+                  {/* Public home page */}
+                  <Route path="/" element={<Home />} />
 
-                {/* Public routes with AuthLayout */}
-                <Route path="/login" element={
-                  <AuthLayout>
-                    <Login />
-                  </AuthLayout>
-                } />
-                <Route path="/register" element={
-                  <AuthLayout>
-                    <Register />
-                  </AuthLayout>
-                } />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/careers" element={<Careers />} />
-                <Route path="/unauthorized" element={<Unauthorized />} />
+                  {/* Public routes with AuthLayout */}
+                  <Route path="/login" element={
+                    <AuthLayout>
+                      <Login />
+                    </AuthLayout>
+                  } />
+                  <Route path="/register" element={
+                    <AuthLayout>
+                      <Register />
+                    </AuthLayout>
+                  } />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/careers" element={<Careers />} />
+                  <Route path="/unauthorized" element={<Unauthorized />} />
 
-                {/* Protected routes with AuthenticatedLayout */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <Dashboard />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/analytics"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <Analytics />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/task/:id"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <TaskDetails />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/team"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <Team />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/notifications"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <Notifications />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/settings"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <Settings />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/reports"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <Reports />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/audit-logs"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <AuditLogs />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/calendar"
-                  element={
-                    <PrivateRoute>
-                      <AuthenticatedLayout>
-                        <Calendar />
-                      </AuthenticatedLayout>
-                    </PrivateRoute>
-                  }
-                />
+                  {/* Protected routes with AuthenticatedLayout */}
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <Dashboard />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/analytics"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <Analytics />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/task/:id"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <TaskDetails />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/team"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <Team />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/notifications"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <Notifications />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <Settings />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/reports"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <Reports />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/audit-logs"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <AuditLogs />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/calendar"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <Calendar />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
 
-                {/* New routes */}
-                <Route path="/open-source" element={<OpenSource />} />
-                <Route path="/ai-support" element={<AISupport />} />
+                  {/* New routes */}
+                  <Route path="/open-source" element={<OpenSource />} />
+                  <Route path="/ai-support" element={<AISupport />} />
 
-                {/* 404 page */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </TooltipProvider>
+                  {/* 404 page */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </TooltipProvider>
+            </TaskProvider>
           </LanguageProvider>
         </ThemeProvider>
       </AuthProvider>

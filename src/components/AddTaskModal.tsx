@@ -9,12 +9,13 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { CalendarIcon, Plus, AlertCircle, Clock, CheckCircle2, HelpCircle } from 'lucide-react';
+import { CalendarIcon, Plus, AlertCircle, Clock, CheckCircle2, HelpCircle, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tarefa } from '@/lib/firebase/tarefas';
 import { MembroEquipe } from '@/lib/firebase/membros';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface AddTaskModalProps {
   isOpen: boolean;
@@ -62,14 +63,18 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
     try {
       const membroResponsavel = teamMembers.find(member => member.id === formData.responsavelId);
       const novaTarefa = {
-        ...formData,
+        titulo: formData.titulo.trim(),
+        descricao: formData.descricao.trim(),
+        concluida: false,
         userId: currentUser.uid,
-        userEmail: currentUser.email,
+        userEmail: currentUser.email || '',
         dataInicio: new Date(formData.dataInicio),
         dataFim: formData.dataFim ? new Date(formData.dataFim) : null,
         responsavelId: formData.responsavelId || currentUser.uid,
         responsavelNome: membroResponsavel?.nome || currentUser.displayName || currentUser.email || 'Usuário',
-        responsavelAvatar: membroResponsavel?.avatar || `https://unavatar.io/github/${membroResponsavel?.nome || currentUser.displayName}`
+        responsavelAvatar: membroResponsavel?.avatar || `https://unavatar.io/github/${membroResponsavel?.nome || currentUser.displayName}`,
+        prioridade: formData.prioridade,
+        status: formData.status
       };
 
       const taskAdded = await onTaskAdded(novaTarefa);
@@ -88,7 +93,6 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
         });
       }
     } catch (error) {
-      console.error('Erro ao criar tarefa:', error);
       toast.error('Erro ao criar tarefa. Tente novamente.');
     }
   };
@@ -124,42 +128,50 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"
-        aria-describedby="dialog-description"
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background via-background/95 to-muted/30 backdrop-blur-sm border border-primary/10 shadow-2xl"
       >
-        <DialogHeader>
-          <DialogTitle id="dialog-title" className="text-2xl font-bold flex items-center gap-2">
-            <Plus className="h-6 w-6 text-primary" />
-            Nova Tarefa
-          </DialogTitle>
-          <DialogDescription id="dialog-description">
+        <VisuallyHidden>
+          <DialogTitle>Nova Tarefa</DialogTitle>
+          <DialogDescription>
             Preencha os detalhes abaixo para criar uma nova tarefa
           </DialogDescription>
+        </VisuallyHidden>
+
+        <DialogHeader className="space-y-4 pb-6 border-b border-primary/10">
+          <div className="text-2xl font-bold flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 shadow-lg shadow-primary/10">
+              <Plus className="h-6 w-6 text-primary" />
+            </div>
+            Nova Tarefa
+          </div>
+          <p className="mt-3 text-muted-foreground/80">
+            Preencha os detalhes abaixo para criar uma nova tarefa
+          </p>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6" aria-labelledby="dialog-title">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="titulo">Título</Label>
+        <form onSubmit={handleSubmit} className="space-y-8 pt-6">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-2.5">
+              <Label htmlFor="titulo" className="text-sm font-medium text-foreground/90">Título</Label>
               <Input
                 id="titulo"
                 value={formData.titulo}
                 onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
                 placeholder="Digite o título da tarefa"
                 required
-                className="w-full"
+                className="w-full bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="responsavel">Responsável</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="responsavel" className="text-sm font-medium text-foreground/90">Responsável</Label>
               <Select value={formData.responsavelId} onValueChange={(value) => setFormData({ ...formData, responsavelId: value })}>
-                <SelectTrigger id="responsavel" className="w-full">
+                <SelectTrigger id="responsavel" className="w-full bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200">
                   <SelectValue placeholder="Selecione um responsável" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background/95 backdrop-blur-sm border-primary/10">
                   {teamMembers.map((member) => (
-                    <SelectItem key={member.id} value={member.id}>
+                    <SelectItem key={member.id} value={member.id} className="focus:bg-primary/10">
                       {member.nome}
                     </SelectItem>
                   ))}
@@ -168,75 +180,83 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="descricao">Descrição</Label>
+          <div className="space-y-2.5">
+            <Label htmlFor="descricao" className="text-sm font-medium text-foreground/90">Descrição</Label>
             <Textarea
               id="descricao"
               value={formData.descricao}
               onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
               placeholder="Descreva os detalhes da tarefa"
-              className="min-h-[100px]"
+              className="min-h-[120px] bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Prioridade</Label>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-2.5">
+              <Label className="text-sm font-medium text-foreground/90">Prioridade</Label>
               <Select value={formData.prioridade} onValueChange={(value) => setFormData({ ...formData, prioridade: value })}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200">
                   <SelectValue placeholder="Selecione a prioridade" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="alta" className="text-red-500">
+                <SelectContent className="bg-background/95 backdrop-blur-sm border-primary/10">
+                  <SelectItem value="alta" className="text-red-500 focus:bg-red-500/10">
                     Alta Prioridade
                   </SelectItem>
-                  <SelectItem value="media" className="text-yellow-500">
+                  <SelectItem value="media" className="text-yellow-500 focus:bg-yellow-500/10">
                     Média Prioridade
                   </SelectItem>
-                  <SelectItem value="baixa" className="text-green-500">
+                  <SelectItem value="baixa" className="text-green-500 focus:bg-green-500/10">
                     Baixa Prioridade
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Status</Label>
+            <div className="space-y-2.5">
+              <Label className="text-sm font-medium text-foreground/90">Status</Label>
               <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200">
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pendente" className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-yellow-500" />
-                    Pendente
+                <SelectContent className="bg-background/95 backdrop-blur-sm border-primary/10">
+                  <SelectItem value="pendente">
+                    <div className="flex items-center gap-2.5">
+                      <AlertCircle className="h-4 w-4 text-yellow-500" />
+                      <span>Pendente</span>
+                    </div>
                   </SelectItem>
-                  <SelectItem value="em_progresso" className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-blue-500" />
-                    Em Progresso
+                  <SelectItem value="em_progresso">
+                    <div className="flex items-center gap-2.5">
+                      <Clock className="h-4 w-4 text-blue-500" />
+                      <span>Em Progresso</span>
+                    </div>
                   </SelectItem>
-                  <SelectItem value="concluida" className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    Concluída
+                  <SelectItem value="concluida">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <span>Concluída</span>
+                    </div>
                   </SelectItem>
-                  <SelectItem value="duvida" className="flex items-center gap-2">
-                    <HelpCircle className="h-4 w-4 text-orange-500" />
-                    Com Dúvida
+                  <SelectItem value="duvida">
+                    <div className="flex items-center gap-2.5">
+                      <HelpCircle className="h-4 w-4 text-orange-500" />
+                      <span>Com Dúvida</span>
+                    </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Data de Início</Label>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-2.5">
+              <Label className="text-sm font-medium text-foreground/90">Data de Início</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200",
                       !formData.dataInicio && "text-muted-foreground"
                     )}
                   >
@@ -244,26 +264,25 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     {formData.dataInicio ? format(new Date(formData.dataInicio), "PPP", { locale: ptBR }) : "Selecione a data"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border-primary/10">
                   <Calendar
                     mode="single"
                     selected={new Date(formData.dataInicio)}
-                    onSelect={(date) => setFormData({ ...formData, dataInicio: date?.toISOString().split('T')[0] || '' })}
+                    onSelect={(date) => date && setFormData({ ...formData, dataInicio: date.toISOString().split('T')[0] })}
                     initialFocus
-                    locale={ptBR}
                   />
                 </PopoverContent>
               </Popover>
             </div>
 
-            <div className="space-y-2">
-              <Label>Data de Término</Label>
+            <div className="space-y-2.5">
+              <Label className="text-sm font-medium text-foreground/90">Data de Término</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200",
                       !formData.dataFim && "text-muted-foreground"
                     )}
                   >
@@ -271,32 +290,32 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     {formData.dataFim ? format(new Date(formData.dataFim), "PPP", { locale: ptBR }) : "Selecione a data"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border-primary/10">
                   <Calendar
                     mode="single"
                     selected={formData.dataFim ? new Date(formData.dataFim) : undefined}
-                    onSelect={(date) => setFormData({ ...formData, dataFim: date?.toISOString().split('T')[0] || '' })}
+                    onSelect={(date) => date && setFormData({ ...formData, dataFim: date.toISOString().split('T')[0] })}
                     initialFocus
-                    locale={ptBR}
-                    disabled={(date) => date < (new Date(formData.dataInicio) || new Date())}
                   />
                 </PopoverContent>
               </Popover>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-6 border-t border-primary/10">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
+              className="hover:bg-muted/50 transition-colors"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              className="bg-primary hover:bg-primary/90"
+              className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 transition-all duration-300 shadow-lg hover:shadow-primary/25"
             >
+              <Sparkles className="h-4 w-4 mr-2" />
               Criar Tarefa
             </Button>
           </div>

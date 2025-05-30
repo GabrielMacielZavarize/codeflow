@@ -61,7 +61,6 @@ const Dashboard: React.FC = () => {
   const handleNewTask = async (task: Tarefa) => {
     try {
       await tarefasService.criarTarefa(task);
-      setTasks(prev => [...prev, task]);
       toast.success(t.tasks.added);
       return true;
     } catch (error) {

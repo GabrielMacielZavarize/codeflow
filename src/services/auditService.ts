@@ -51,7 +51,6 @@ export const logActivity = async (
 ): Promise<void> => {
   try {
     if (!userId || !userEmail) {
-      console.error('Erro ao registrar atividade: userId ou userEmail não fornecidos');
       return;
     }
 
@@ -66,8 +65,7 @@ export const logActivity = async (
     };
 
     await addDoc(collection(db, 'auditLogs'), activityData);
-    console.log('Atividade registrada com sucesso:', activityData);
   } catch (error) {
-    console.error('Erro ao registrar atividade:', error);
+    // Silenciosamente falha em caso de erro
   }
 };

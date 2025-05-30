@@ -1,191 +1,98 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { registerWithEmailAndPassword, loginWithGoogle } from '../services/firebase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { toast } from '@/components/ui/sonner';
-import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
-import { ArrowLeft, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
+import RegisterHeader from '@/components/auth/RegisterHeader';
+import RegisterForm from '@/components/auth/RegisterForm';
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { t } = useLanguage();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (currentUser) {
       navigate('/dashboard', { replace: true });
     }
   }, [currentUser, navigate]);
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!name || !email || !password || !confirmPassword) {
-      toast.error(t.register.error);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error(t.register.passwordMismatch);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { user, error } = await registerWithEmailAndPassword(name, email, password);
-
-      if (user) {
-        toast.success(t.register.success);
-        navigate('/dashboard', { replace: true });
-      } else {
-        toast.error(error || t.register.error);
+  const cardVariants = {
+    hidden: { scale: 0.95, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
       }
-    } catch (error) {
-      toast.error(t.register.error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
-    const { user, error } = await loginWithGoogle();
-    setGoogleLoading(false);
-
-    if (user) {
-      toast.success(t.login.success);
-      navigate('/dashboard');
-    } else {
-      toast.error(error || t.login.error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <div className="container px-4 py-8 sm:px-8">
-        <Button variant="ghost" asChild className="mb-8 hover:scale-105 transition-all duration-300">
-          <Link to="/" className="flex items-center gap-2">
-            <ArrowLeft size={20} />
-            Voltar para Home
-          </Link>
-        </Button>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+      {/* Partículas de fundo */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-primary/20 rounded-full"
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+            }}
+            animate={{
+              y: [0, -100],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: Math.random() * 3 + 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
 
+      <div className="container px-4 py-8 sm:px-8 relative z-10">
         <div className="max-w-md mx-auto">
-          <div className="mb-8 text-center">
-            <div className="inline-block mb-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
-                <Star className="w-4 h-4 mr-2" />
-                Solução Open Source
-              </span>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CodeFlow Solutions</h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">{t.register.description}</p>
-          </div>
+          <RegisterHeader />
 
-          <Card className="dark:bg-gray-800/50 dark:border-gray-700 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300">
-            <CardHeader className="text-center space-y-4">
-              <CardTitle className="dark:text-white text-2xl">{t.register.title}</CardTitle>
-              <CardDescription className="dark:text-gray-400">
-                {t.register.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button
-                onClick={handleGoogleLogin}
-                className="w-full mb-4 bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-105"
-                disabled={googleLoading}
-              >
-                <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"
-                    fill={googleLoading ? "#aaa" : "#4285F4"} />
-                </svg>
-                {googleLoading ? t.login.processing : t.login.googleButton}
-              </Button>
-
-              <div className="relative my-4">
-                <Separator className="dark:bg-gray-700" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-white dark:bg-gray-800 px-2 text-xs text-gray-500 dark:text-gray-400">
-                    {t.login.or}
-                  </span>
-                </div>
-              </div>
-
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="dark:text-gray-200">{t.register.name}</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="dark:bg-gray-700/50 dark:border-gray-600 dark:text-white transition-all duration-300 focus:ring-2 focus:ring-primary/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="dark:text-gray-200">{t.register.email}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="dark:bg-gray-700/50 dark:border-gray-600 dark:text-white transition-all duration-300 focus:ring-2 focus:ring-primary/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="dark:text-gray-200">{t.register.password}</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="dark:bg-gray-700/50 dark:border-gray-600 dark:text-white transition-all duration-300 focus:ring-2 focus:ring-primary/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="dark:text-gray-200">{t.register.confirmPassword}</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    className="dark:bg-gray-700/50 dark:border-gray-600 dark:text-white transition-all duration-300 focus:ring-2 focus:ring-primary/50"
-                  />
-                </div>
-
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105" disabled={loading}>
-                  {loading ? t.register.processing : t.register.submitButton}
-                </Button>
-              </form>
-            </CardContent>
-            <CardFooter className="flex justify-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {t.register.haveAccount}{' '}
-                <Link to="/login" className="text-primary hover:underline dark:text-primary-foreground transition-colors">
-                  {t.register.login}
-                </Link>
-              </p>
-            </CardFooter>
-          </Card>
+          <motion.div
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Card className="dark:bg-gray-800/80 dark:border-gray-700 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="text-center space-y-4">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <CardTitle className="dark:text-white text-2xl">Criar Conta</CardTitle>
+                  <CardDescription className="dark:text-gray-300">
+                    Preencha os dados abaixo para criar sua conta
+                  </CardDescription>
+                </motion.div>
+              </CardHeader>
+              <CardContent>
+                <RegisterForm />
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="text-sm text-gray-600 dark:text-gray-300"
+                >
+                  Já tem uma conta?{' '}
+                  <Link to="/login" className="text-primary hover:underline dark:text-blue-500 transition-colors">
+                    Fazer login
+                  </Link>
+                </motion.p>
+              </CardFooter>
+            </Card>
+          </motion.div>
         </div>
       </div>
     </div>

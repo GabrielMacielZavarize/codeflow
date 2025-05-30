@@ -40,7 +40,7 @@ export function LoginButton() {
             const user = await signInWithGoogle();
             if (user) {
                 console.log('Login realizado com sucesso, redirecionando...');
-                toast.success(t('login.success'));
+                toast.success(t.login.success);
             }
         } catch (error: any) {
             console.error('Erro detalhado no componente de login:', {
@@ -50,7 +50,7 @@ export function LoginButton() {
             });
 
             // Exibe a mensagem de erro de forma mais amigável
-            toast.error(error.message || t('login.error'), {
+            toast.error(error.message || t.login.error, {
                 duration: 5000,
                 action: {
                     label: 'Tentar novamente',
@@ -73,7 +73,7 @@ export function LoginButton() {
             className="w-full"
             variant="default"
         >
-            {isLoading ? t('login.loading') : t('login.button')}
+            {isLoading ? t.login.processing : t.login.submitButton}
         </Button>
     );
 } 

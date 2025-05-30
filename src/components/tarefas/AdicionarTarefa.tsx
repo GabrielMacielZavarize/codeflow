@@ -19,12 +19,12 @@ export const AdicionarTarefa = () => {
         e.preventDefault();
 
         if (!titulo.trim()) {
-            toast.error(t.tarefas.tituloObrigatorio);
+            toast.error(t.tasks.tituloObrigatorio);
             return;
         }
 
         if (!currentUser) {
-            toast.error(t.tarefas.usuarioNaoAutenticado);
+            toast.error(t.tasks.usuarioNaoAutenticado);
             return;
         }
 
@@ -35,15 +35,21 @@ export const AdicionarTarefa = () => {
                 titulo: titulo.trim(),
                 descricao: descricao.trim(),
                 concluida: false,
-                userId: currentUser.uid
+                userId: currentUser.uid,
+                userEmail: currentUser.email || '',
+                dataInicio: new Date(),
+                dataFim: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias a partir de agora
+                responsavelId: currentUser.uid,
+                responsavelNome: currentUser.displayName || currentUser.email || '',
+                status: 'pendente'
             });
 
             setTitulo('');
             setDescricao('');
-            toast.success(t.tarefas.criadaComSucesso);
+            toast.success(t.tasks.criadaComSucesso);
         } catch (error) {
             console.error('Erro ao criar tarefa:', error);
-            toast.error(t.tarefas.erroAoCriar);
+            toast.error(t.tasks.erroAoCriar);
         } finally {
             setLoading(false);
         }
@@ -52,14 +58,14 @@ export const AdicionarTarefa = () => {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{t.tarefas.adicionarNova}</CardTitle>
+                <CardTitle>{t.tasks.adicionarNova}</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                         <Input
                             type="text"
-                            placeholder={t.tarefas.tituloPlaceholder}
+                            placeholder={t.tasks.tituloPlaceholder}
                             value={titulo}
                             onChange={(e) => setTitulo(e.target.value)}
                             disabled={loading}
@@ -67,14 +73,14 @@ export const AdicionarTarefa = () => {
                     </div>
                     <div className="space-y-2">
                         <Textarea
-                            placeholder={t.tarefas.descricaoPlaceholder}
+                            placeholder={t.tasks.descricaoPlaceholder}
                             value={descricao}
                             onChange={(e) => setDescricao(e.target.value)}
                             disabled={loading}
                         />
                     </div>
                     <Button type="submit" disabled={loading}>
-                        {loading ? t.tarefas.adicionando : t.tarefas.adicionar}
+                        {loading ? t.tasks.adicionando : t.tasks.adicionar}
                     </Button>
                 </form>
             </CardContent>

@@ -12,9 +12,21 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase/config';
+
+interface AuditActivity {
+  id: string;
+  action: string;
+  entity: string;
+  entityId?: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  details: string;
+  timestamp: Date;
+}
 
 const AuditLogs = () => {
   const { currentUser } = useAuth();
@@ -35,11 +47,7 @@ const AuditLogs = () => {
 
         // Verificar permissão
         if (!checkPermission(getUserRole(currentUser.uid), 'canViewAuditLogs')) {
-          toast({
-            title: t('auditLogs.accessDenied'),
-            description: t('auditLogs.noPermission'),
-            variant: 'destructive'
-          });
+          toast.error(t.auditLogs.accessDenied);
           return;
         }
 

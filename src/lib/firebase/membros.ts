@@ -71,7 +71,7 @@ class MembrosService {
                     isNew: true,
                     dataEntrada: new Date('2024-03-15'),
                     habilidades: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'UI/UX'],
-                    status: 'Pleno',
+                    status: 'Pleno' as const,
                     tarefas: 0
                 },
                 {
@@ -83,7 +83,7 @@ class MembrosService {
                     isNew: false,
                     dataEntrada: new Date('2024-02-01'),
                     habilidades: ['Node.js', 'Python', 'Docker', 'AWS', 'MongoDB'],
-                    status: 'Pleno',
+                    status: 'Pleno' as const,
                     tarefas: 0
                 },
                 {
@@ -95,7 +95,7 @@ class MembrosService {
                     isNew: true,
                     dataEntrada: new Date('2024-03-10'),
                     habilidades: ['Figma', 'UI Design', 'UX Research', 'Design Systems', 'Prototipagem'],
-                    status: 'Pleno',
+                    status: 'Pleno' as const,
                     tarefas: 0
                 },
                 {
@@ -107,7 +107,7 @@ class MembrosService {
                     isNew: false,
                     dataEntrada: new Date('2024-01-15'),
                     habilidades: ['Product Strategy', 'Agile', 'User Research', 'Data Analysis', 'Stakeholder Management'],
-                    status: 'Pleno',
+                    status: 'Pleno' as const,
                     tarefas: 0
                 },
                 {
@@ -119,7 +119,7 @@ class MembrosService {
                     isNew: false,
                     dataEntrada: new Date('2024-02-20'),
                     habilidades: ['Testes Automatizados', 'Cypress', 'Jest', 'CI/CD', 'Qualidade de Software'],
-                    status: 'Pleno',
+                    status: 'Pleno' as const,
                     tarefas: 0
                 }
             ];

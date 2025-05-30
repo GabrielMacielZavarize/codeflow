@@ -208,7 +208,8 @@ export const enUS = {
     status: {
       pending: 'Pending',
       inProgress: 'In Progress',
-      completed: 'Completed'
+      completed: 'Completed',
+      canceled: 'Canceled'
     },
     assignLabel: 'Assignee',
     selectAssignee: 'Select assignee',
@@ -228,7 +229,31 @@ export const enUS = {
     editTitle: 'Edit Task',
     editDescription: 'Update task information',
     edit: 'Edit',
-    delete: 'Delete'
+    delete: 'Delete',
+    unassigned: 'Unassigned',
+    comments: 'Comments',
+    reply: 'Reply',
+    replyPlaceholder: 'Type your reply...',
+    send: 'Send',
+    addComment: 'Add a comment...',
+    progress: 'Progress',
+    confirmDelete: 'Are you sure you want to delete this task?',
+    atualizadaComSucesso: "Task updated successfully",
+    erroAoAtualizar: "Error updating task",
+    deletadaComSucesso: "Task deleted successfully",
+    erroAoDeletar: "Error deleting task",
+    carregando: "Loading tasks...",
+    todasTarefas: "All Tasks",
+    nenhumaTarefa: "No tasks found",
+    tituloPlaceholder: "Task title",
+    adicionando: "Adding...",
+    adicionarNova: "Add New Task",
+    tituloObrigatorio: "Title is required",
+    usuarioNaoAutenticado: "You need to be logged in to add tasks",
+    criadaComSucesso: "Task created successfully",
+    erroAoCriar: "Error creating task",
+    descricaoPlaceholder: "Task description",
+    adicionar: "Add"
   },
 
   // General
@@ -352,5 +377,18 @@ export const enUS = {
     description: "You don't have permission to access this page. Contact the system administrator if you need access.",
     backToDashboard: "Back to Dashboard",
     goBack: "Go Back"
+  },
+
+  // Tasks
+  tarefas: {
+    adicionarNova: "Add New Task",
+    tituloObrigatorio: "Title is required",
+    usuarioNaoAutenticado: "You need to be logged in to add tasks",
+    criadaComSucesso: "Task created successfully",
+    erroAoCriar: "Error creating task",
+    tituloPlaceholder: "Task title",
+    descricaoPlaceholder: "Task description",
+    adicionando: "Adding...",
+    adicionar: "Add"
   }
 };

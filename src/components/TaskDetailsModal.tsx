@@ -21,7 +21,6 @@ import { ptBR } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { extrairUsernameGithub } from '@/lib/utils';
 import { membrosService } from '@/lib/firebase/membros';
-import { teamMembers } from '@/lib/firebase/teamMembers';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TaskDetailsModalProps {
@@ -93,16 +92,16 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, isOpen, onClo
                 status: novoStatus,
                 concluida: novoStatus === 'concluida'
             });
-            
-            onTaskUpdated?.(currentTask.id, { 
-                status: novoStatus, 
-                concluida: novoStatus === 'concluida' 
+
+            onTaskUpdated?.(currentTask.id, {
+                status: novoStatus,
+                concluida: novoStatus === 'concluida'
             });
             toast.success('Status atualizado com sucesso!');
         } catch (error) {
             console.error('Erro ao atualizar status:', error);
             toast.error('Erro ao atualizar status. Tente novamente.');
-            
+
             setCurrentTask(prevTask => ({
                 ...prevTask!,
                 status: currentTask.status,
@@ -322,7 +321,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, isOpen, onClo
                                     <div key={comentario.id} className="space-y-2">
                                         <div className="flex items-start space-x-2">
                                             <Avatar className="h-8 w-8">
-                                                <AvatarImage src={`https://unavatar.io/github/${extrairUsernameGithub(comentario.userAvatar)}`} />
+                                                <AvatarImage src={`https://unavatar.io/github/${extrairUsernameGithub((comentario as any).userAvatar || '')}`} />
                                                 <AvatarFallback>{comentario.userName[0]}</AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1">
@@ -370,7 +369,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, isOpen, onClo
                                                     <div key={resposta.id} className="ml-8 mt-2">
                                                         <div className="flex items-start space-x-2">
                                                             <Avatar className="h-6 w-6">
-                                                                <AvatarImage src={`https://unavatar.io/github/${extrairUsernameGithub(resposta.userAvatar)}`} />
+                                                                <AvatarImage src={`https://unavatar.io/github/${extrairUsernameGithub((resposta as any).userAvatar || '')}`} />
                                                                 <AvatarFallback>{resposta.userName[0]}</AvatarFallback>
                                                             </Avatar>
                                                             <div className="flex-1">

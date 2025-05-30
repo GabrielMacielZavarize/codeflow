@@ -83,7 +83,8 @@ const TaskView = ({ task, teamMembers }: { task: Task, teamMembers: TeamMember[]
 
   const findTeamMember = (id?: string) => {
     if (!id) return null;
-    return teamMembers.find(member => member.id === id);
+    const numericId = parseInt(id, 10);
+    return teamMembers.find(member => member.id === numericId);
   };
 
   return (
@@ -94,7 +95,7 @@ const TaskView = ({ task, teamMembers }: { task: Task, teamMembers: TeamMember[]
             <CardTitle className="text-2xl">{task.title}</CardTitle>
             <CardDescription className="flex items-center mt-2">
               <Calendar className="h-4 w-4 mr-1" />
-              {t.tasks.createdAt} {format(new Date(task.createdAt), 'PP', { locale: getLocale() })}
+              {'Criada em'} {format(new Date(task.dataCriacao), 'PP', { locale: getLocale() })}
             </CardDescription>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -113,9 +114,9 @@ const TaskView = ({ task, teamMembers }: { task: Task, teamMembers: TeamMember[]
           <div className="flex items-center">
             <User className="h-5 w-5 mr-2 text-gray-500" />
             <div>
-              <span className="text-sm text-gray-500">{t.tasks.assignedTo}</span>
+              <span className="text-sm text-gray-500">Responsável</span>
               <p className="font-medium">
-                {task.assignedTo ? findTeamMember(task.assignedTo)?.name || t.tasks.status.undefined : t.tasks.unassigned}
+                {task.responsavelId ? findTeamMember(task.responsavelId)?.name || 'Indefinido' : 'Não atribuído'}
               </p>
             </div>
           </div>
@@ -124,23 +125,23 @@ const TaskView = ({ task, teamMembers }: { task: Task, teamMembers: TeamMember[]
             <div>
               <span className="text-sm text-gray-500">{t.tasks.statusLabel}</span>
               <p className="font-medium">
-                {task.status === 'pending' && t.tasks.status.pending}
-                {task.status === 'in_progress' && t.tasks.status.inProgress}
-                {task.status === 'completed' && t.tasks.status.completed}
-                {task.status === 'canceled' && t.tasks.status.canceled}
-                {!task.status && t.tasks.status.undefined}
+                {String(task.status) === 'pending' && 'Pendente'}
+                {String(task.status) === 'in_progress' && 'Em Progresso'}
+                {String(task.status) === 'completed' && 'Concluída'}
+                {String(task.status) === 'canceled' && 'Cancelada'}
+                {!task.status && 'Indefinido'}
               </p>
             </div>
           </div>
         </div>
 
-        {task.dueDate && (
+        {task.dataFim && (
           <div className="flex items-center mt-4">
             <Calendar className="h-5 w-5 mr-2 text-gray-500" />
             <div>
-              <span className="text-sm text-gray-500">{t.tasks.dueDate}</span>
+              <span className="text-sm text-gray-500">Data de Entrega</span>
               <p className="font-medium">
-                {format(new Date(task.dueDate), 'PP', { locale: getLocale() })}
+                {format(new Date(task.dataFim), 'PP', { locale: getLocale() })}
               </p>
             </div>
           </div>
@@ -234,7 +235,7 @@ const TaskEditForm = ({ task, teamMembers, editForm, setEditForm, handleEditSubm
                 <SelectContent>
                   <SelectItem value="unassigned">{t.tasks.unassigned}</SelectItem>
                   {teamMembers.map(member => (
-                    <SelectItem key={member.id} value={member.id}>
+                    <SelectItem key={member.id} value={String(member.id)}>
                       {member.name}
                     </SelectItem>
                   ))}
@@ -244,8 +245,8 @@ const TaskEditForm = ({ task, teamMembers, editForm, setEditForm, handleEditSubm
           </div>
 
           <CardFooter className="px-0 pt-6">
-            <Button type="submit" className="mr-2">{t.tasks.saveChanges}</Button>
-            <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>{t.tasks.cancel}</Button>
+            <Button type="submit" className="mr-2">Salvar Alterações</Button>
+            <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>Cancelar</Button>
           </CardFooter>
         </form>
       </CardContent>
@@ -273,10 +274,10 @@ const TaskDetailsNotFound = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-700">{t.tasks.notFound}</h2>
-        <p className="mt-2 text-gray-500">{t.tasks.notFoundDescription}</p>
+        <h2 className="text-2xl font-bold text-gray-700">Tarefa não encontrada</h2>
+        <p className="mt-2 text-gray-500">A tarefa que você procura não existe ou foi removida.</p>
         <Button className="mt-4" onClick={() => navigate('/dashboard')}>
-          {t.tasks.back}
+          Voltar
         </Button>
       </div>
     </div>
@@ -320,11 +321,11 @@ const TaskDetails = () => {
           description: taskData.description || '',
           priority: taskData.priority,
           status: taskData.status || '',
-          assignedTo: taskData.assignedTo || ''
+          assignedTo: taskData.responsavelId || ''
         });
       } catch (error) {
         console.error('Error loading task:', error);
-        toast.error(t.tasks.errorLoading);
+        toast.error('Erro ao carregar tarefa.');
         navigate('/dashboard');
       } finally {
         setLoading(false);
@@ -339,17 +340,26 @@ const TaskDetails = () => {
     if (!task) return;
 
     try {
+      const isTask = (obj: unknown): obj is Task => {
+        return obj !== null && typeof obj === 'object' && 'id' in obj;
+      };
+
       const updatedTask = await updateTask(task.id, {
-        ...task,
-        ...editForm
+        title: editForm.title,
+        description: editForm.description,
+        priority: editForm.priority as any,
+        status: editForm.status as any,
+        responsavelId: editForm.assignedTo
       });
 
-      setTask(updatedTask);
+      if (isTask(updatedTask)) {
+        setTask(updatedTask);
+      }
       setIsEditing(false);
-      toast.success(t.tasks.updateSuccess);
+      toast.success('Tarefa atualizada com sucesso!');
     } catch (error) {
       console.error('Error updating task:', error);
-      toast.error(t.tasks.updateError);
+      toast.error('Erro ao atualizar tarefa.');
     }
   };
 
@@ -358,11 +368,11 @@ const TaskDetails = () => {
 
     try {
       await deleteTask(task.id);
-      toast.success(t.tasks.deleteSuccess);
+      toast.success('Tarefa excluída com sucesso!');
       navigate('/dashboard');
     } catch (error) {
       console.error('Error deleting task:', error);
-      toast.error(t.tasks.deleteError);
+      toast.error('Erro ao excluir tarefa.');
     }
   };
 

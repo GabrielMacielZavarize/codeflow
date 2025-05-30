@@ -287,7 +287,23 @@ export const ptBR = {
     send: 'Enviar',
     addComment: 'Adicionar um comentário...',
     progress: 'Progresso',
-    confirmDelete: 'Tem certeza que deseja excluir esta tarefa?'
+    confirmDelete: 'Tem certeza que deseja excluir esta tarefa?',
+    adicionarNova: "Adicionar Nova Tarefa",
+    tituloObrigatorio: "O título é obrigatório",
+    usuarioNaoAutenticado: "Você precisa estar logado para adicionar tarefas",
+    criadaComSucesso: "Tarefa criada com sucesso",
+    erroAoCriar: "Erro ao criar tarefa",
+    tituloPlaceholder: "Título da tarefa",
+    descricaoPlaceholder: "Descrição da tarefa",
+    adicionando: "Adicionando...",
+    adicionar: "Adicionar",
+    atualizadaComSucesso: "Tarefa atualizada com sucesso",
+    erroAoAtualizar: "Erro ao atualizar tarefa",
+    deletadaComSucesso: "Tarefa deletada com sucesso",
+    erroAoDeletar: "Erro ao deletar tarefa",
+    carregando: "Carregando tarefas...",
+    todasTarefas: "Todas as Tarefas",
+    nenhumaTarefa: "Nenhuma tarefa encontrada"
   },
 
   // General

@@ -34,37 +34,37 @@ export const ListaTarefas = () => {
             await tarefasService.atualizarTarefa(tarefa.id, {
                 concluida: !tarefa.concluida
             });
-            toast.success(t.tarefas.atualizadaComSucesso);
+            toast.success(t.tasks.atualizadaComSucesso);
         } catch (error) {
             console.error('Erro ao atualizar tarefa:', error);
-            toast.error(t.tarefas.erroAoAtualizar);
+            toast.error(t.tasks.erroAoAtualizar);
         }
     };
 
     const handleDeletar = async (tarefaId: string) => {
         try {
             await tarefasService.deletarTarefa(tarefaId);
-            toast.success(t.tarefas.deletadaComSucesso);
+            toast.success(t.tasks.deletadaComSucesso);
         } catch (error) {
             console.error('Erro ao deletar tarefa:', error);
-            toast.error(t.tarefas.erroAoDeletar);
+            toast.error(t.tasks.erroAoDeletar);
         }
     };
 
     if (loading) {
-        return <div>{t.tarefas.carregando}</div>;
+        return <div>{t.tasks.carregando}</div>;
     }
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{t.tarefas.todasTarefas}</CardTitle>
+                <CardTitle>{t.tasks.todasTarefas}</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
                     {tarefas.length === 0 ? (
                         <p className="text-center text-muted-foreground">
-                            {t.tarefas.nenhumaTarefa}
+                            {t.tasks.nenhumaTarefa}
                         </p>
                     ) : (
                         tarefas.map((tarefa) => (

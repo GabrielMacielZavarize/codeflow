@@ -12,8 +12,7 @@ import { auth } from './firebase';
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
     prompt: 'select_account',
-    authType: 'signInWithPopup',
-    includeGrantedScopes: true
+    authType: 'signInWithPopup'
 });
 
 export const signInWithGoogle = async () => {

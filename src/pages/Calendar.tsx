@@ -93,7 +93,7 @@ const Calendar = () => {
       const isSameDate = isSameDay(taskDate, date);
       if (!isSameDate) return false;
 
-      if (priorityFilter !== 'all' && task.prioridade !== priorityFilter) return false;
+      if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false;
       if (statusFilter !== 'all' && task.status !== statusFilter) return false;
 
       if (statusFilter === 'atrasada') {
@@ -108,13 +108,13 @@ const Calendar = () => {
   const getDayClass = (day: Date) => {
     const isToday = isSameDay(day, new Date());
     const dayTasks = tasks.filter(task => {
-      const taskDate = task.dataFim ? new Date(task.dataFim.seconds * 1000) : null;
+      const taskDate = task.dataFim && 'seconds' in task.dataFim ? new Date((task.dataFim as { seconds: number }).seconds * 1000) : task.dataFim;
       return taskDate && isSameDay(day, taskDate);
     });
 
-    const hasHighPriority = dayTasks.some(task => task.prioridade === 'alta');
-    const hasMediumPriority = dayTasks.some(task => task.prioridade === 'media');
-    const hasLowPriority = dayTasks.some(task => task.prioridade === 'baixa');
+    const hasHighPriority = dayTasks.some(task => task.priority === 'high');
+    const hasMediumPriority = dayTasks.some(task => task.priority === 'medium');
+    const hasLowPriority = dayTasks.some(task => task.priority === 'low');
 
     return cn(
       "relative p-2 h-24 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors",
@@ -166,16 +166,29 @@ const Calendar = () => {
 
   const handleNewTask = async (taskData: Omit<Task, 'id'>) => {
     try {
-      const novaTarefa = await tarefasService.criarTarefa(taskData);
+      const tarefaData = {
+        ...taskData,
+        concluida: taskData.status === 'concluida',
+        titulo: taskData.title,
+        userEmail: currentUser?.email || '',
+        responsavelNome: getResponsavelNome(taskData.responsavelId || ''),
+        responsavelId: taskData.responsavelId || '',
+        status: taskData.status === 'atrasada' ? 'pendente' : taskData.status,
+        dataInicio: taskData.dataInicio || new Date(),
+        dataFim: taskData.dataFim || null
+      };
+      const novaTarefa = await tarefasService.criarTarefa(tarefaData);
       if (!novaTarefa.id) {
         throw new Error('Tarefa criada sem ID');
       }
       toast.success('Tarefa criada com sucesso!');
       setIsAddTaskModalOpen(false);
       setSelectedDate(null);
+      return true;
     } catch (error) {
       console.error('Erro ao criar tarefa:', error);
       toast.error('Erro ao criar tarefa');
+      return false;
     }
   };
 
@@ -250,9 +263,9 @@ const Calendar = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t.calendar.allPriorities}</SelectItem>
-                  <SelectItem value="alta">{t.calendar.highPriority}</SelectItem>
-                  <SelectItem value="media">{t.calendar.mediumPriority}</SelectItem>
-                  <SelectItem value="baixa">{t.calendar.lowPriority}</SelectItem>
+                  <SelectItem value="high">{t.calendar.highPriority}</SelectItem>
+                  <SelectItem value="medium">{t.calendar.mediumPriority}</SelectItem>
+                  <SelectItem value="low">{t.calendar.lowPriority}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -264,9 +277,9 @@ const Calendar = () => {
                   <SelectItem value="all">{t.calendar.allStatus}</SelectItem>
                   <SelectItem value="pendente">{t.calendar.pending}</SelectItem>
                   <SelectItem value="concluida">{t.calendar.completed}</SelectItem>
-                  <SelectItem value="atrasada">{t.calendar.overdue}</SelectItem>
+                  <SelectItem value="atrasada">{t.calendar.pending}</SelectItem>
                   <SelectItem value="em_progresso">{t.calendar.inProgress}</SelectItem>
-                  <SelectItem value="duvida">{t.calendar.doubt}</SelectItem>
+                  <SelectItem value="duvida">{t.calendar.pending}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -325,9 +338,9 @@ const Calendar = () => {
                             e.stopPropagation();
                             handleTaskClick(task.id);
                           }}
-                          className={`text-xs p-1.5 rounded truncate cursor-pointer transition-colors duration-200 ${task.prioridade === 'alta'
+                          className={`text-xs p-1.5 rounded truncate cursor-pointer transition-colors duration-200 ${task.priority === 'high'
                             ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-900/40'
-                            : task.prioridade === 'media'
+                            : task.priority === 'medium'
                               ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-900/40'
                               : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-900/40'
                             }`}

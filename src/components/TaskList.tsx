@@ -112,7 +112,7 @@ export const TaskList = ({ tasks, onTaskUpdate }: TaskListProps) => {
       ))}
       {tasks.length === 0 && (
         <div className="text-center py-8 text-gray-500">
-          {t.tarefas.nenhumaTarefa}
+          {t.tasks.nenhumaTarefa}
         </div>
       )}
     </div>

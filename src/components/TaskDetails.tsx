@@ -100,8 +100,8 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onBack, getResponsavelN
             </CardHeader>
             <CardContent className="p-3 sm:p-6 space-y-6">
                 <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className={`${getPriorityClass(task.prioridade)} text-sm sm:text-base px-3 py-1`}>
-                        {getPriorityText(task.prioridade)}
+                    <Badge variant="secondary" className={`${getPriorityClass(task.priority)} text-sm sm:text-base px-3 py-1`}>
+                        {getPriorityText(task.priority)}
                     </Badge>
                     <Badge variant="secondary" className={`${getStatusClass(task.status)} text-sm sm:text-base px-3 py-1 flex items-center gap-1`}>
                         {getStatusIcon(task.status)}

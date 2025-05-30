@@ -66,9 +66,23 @@ export const ptBR = {
     title: "Painel",
     description: "Gerencie suas tarefas e acompanhe o progresso",
     addTask: "Nova Tarefa",
+    addMember: "Novo Membro",
+    stats: {
+      totalTasks: "Total de Tarefas",
+      pendingTasks: "Tarefas Pendentes",
+      inProgress: "Em Progresso",
+      completedTasks: "Tarefas Concluídas",
+      completed: "concluídas",
+      ofTotal: "do total"
+    },
     overview: "Visão Geral",
-    tasks: "Tarefas",
-    team: "Equipe",
+    tasks: {
+      title: "Tarefas"
+    },
+    team: {
+      title: "Equipe",
+      tasks: "Tarefas"
+    },
     analytics: "Análises",
     projectProgress: "Progresso do Projeto",
     recentActivity: "Atividade Recente",
@@ -303,7 +317,9 @@ export const ptBR = {
     erroAoDeletar: "Erro ao deletar tarefa",
     carregando: "Carregando tarefas...",
     todasTarefas: "Todas as Tarefas",
-    nenhumaTarefa: "Nenhuma tarefa encontrada"
+    nenhumaTarefa: "Nenhuma tarefa encontrada",
+    errorAdding: "Erro ao adicionar tarefa",
+    errorUpdating: "Erro ao atualizar tarefa"
   },
 
   // General

@@ -253,7 +253,9 @@ export const enUS = {
     criadaComSucesso: "Task created successfully",
     erroAoCriar: "Error creating task",
     descricaoPlaceholder: "Task description",
-    adicionar: "Add"
+    adicionar: "Add",
+    errorAdding: "Error adding task",
+    errorUpdating: "Error updating task"
   },
 
   // General
@@ -270,9 +272,23 @@ export const enUS = {
     title: "Dashboard",
     description: "Manage your tasks and track progress",
     addTask: "New Task",
+    addMember: "New Member",
+    stats: {
+      totalTasks: "Total Tasks",
+      pendingTasks: "Pending Tasks",
+      inProgress: "In Progress",
+      completedTasks: "Completed Tasks",
+      completed: "completed",
+      ofTotal: "of total"
+    },
     overview: "Overview",
-    tasks: "Tasks",
-    team: "Team",
+    tasks: {
+      title: "Tasks"
+    },
+    team: {
+      title: "Team",
+      tasks: "Tasks"
+    },
     analytics: "Analytics",
     projectProgress: "Project Progress",
     recentActivity: "Recent Activity",

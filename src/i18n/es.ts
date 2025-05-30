@@ -263,9 +263,23 @@ export const es = {
     title: "Panel",
     description: "Gestione sus tareas y siga el progreso",
     addTask: "Nueva Tarea",
+    addMember: "Nuevo Miembro",
+    stats: {
+      totalTasks: "Total de Tareas",
+      pendingTasks: "Tareas Pendientes",
+      inProgress: "En Progreso",
+      completedTasks: "Tareas Completadas",
+      completed: "completadas",
+      ofTotal: "del total"
+    },
     overview: "Vista General",
-    tasks: "Tareas",
-    team: "Equipo",
+    tasks: {
+      title: "Tareas"
+    },
+    team: {
+      title: "Equipo",
+      tasks: "Tareas"
+    },
     analytics: "Análisis",
     projectProgress: "Progreso del Proyecto",
     recentActivity: "Actividad Reciente",

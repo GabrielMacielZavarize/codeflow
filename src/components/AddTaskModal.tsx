@@ -268,8 +268,15 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
                   <Calendar
                     mode="single"
                     selected={new Date(formData.dataInicio)}
-                    onSelect={(date) => date && setFormData({ ...formData, dataInicio: date.toISOString().split('T')[0] })}
+                    onSelect={(date) => {
+                      if (date) {
+                        // Ajusta a data para o início do dia no fuso horário local
+                        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                        setFormData({ ...formData, dataInicio: localDate.toISOString() });
+                      }
+                    }}
                     initialFocus
+                    disabled={(date) => false} // Permite selecionar qualquer data
                   />
                 </PopoverContent>
               </Popover>
@@ -294,8 +301,15 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
                   <Calendar
                     mode="single"
                     selected={formData.dataFim ? new Date(formData.dataFim) : undefined}
-                    onSelect={(date) => date && setFormData({ ...formData, dataFim: date.toISOString().split('T')[0] })}
+                    onSelect={(date) => {
+                      if (date) {
+                        // Ajusta a data para o início do dia no fuso horário local
+                        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                        setFormData({ ...formData, dataFim: localDate.toISOString() });
+                      }
+                    }}
                     initialFocus
+                    disabled={(date) => false} // Permite selecionar qualquer data
                   />
                 </PopoverContent>
               </Popover>

@@ -63,7 +63,7 @@ const Register = () => {
             animate="visible"
           >
             <Card className="dark:bg-gray-800/80 dark:border-gray-700 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300">
-              <CardHeader className="text-center space-y-4">
+            <CardHeader className="text-center space-y-4">
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -72,13 +72,13 @@ const Register = () => {
                   <CardTitle className="dark:text-white text-2xl">Criar Conta</CardTitle>
                   <CardDescription className="dark:text-gray-300">
                     Preencha os dados abaixo para criar sua conta
-                  </CardDescription>
+              </CardDescription>
                 </motion.div>
-              </CardHeader>
+            </CardHeader>
               <CardContent>
                 <RegisterForm />
-              </CardContent>
-              <CardFooter className="flex justify-center">
+            </CardContent>
+            <CardFooter className="flex justify-center">
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -88,10 +88,10 @@ const Register = () => {
                   Já tem uma conta?{' '}
                   <Link to="/login" className="text-primary hover:underline dark:text-blue-500 transition-colors">
                     Fazer login
-                  </Link>
+                </Link>
                 </motion.p>
-              </CardFooter>
-            </Card>
+            </CardFooter>
+          </Card>
           </motion.div>
         </div>
       </div>

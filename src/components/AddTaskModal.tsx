@@ -93,6 +93,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
         });
       }
     } catch (error) {
+      console.error('Erro ao criar tarefa:', error);
       toast.error('Erro ao criar tarefa. Tente novamente.');
     }
   };

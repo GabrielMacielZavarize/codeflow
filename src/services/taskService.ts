@@ -1,70 +1,83 @@
 import { db } from '@/lib/firebase/config';
 import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
 
-export type Priority = 'high' | 'medium' | 'low';
-export type TaskStatus = 'concluida' | 'pendente' | 'atrasada';
+export type StatusTarefa = 'concluida' | 'pendente' | 'atrasada' | 'em_progresso' | 'duvida';
+export type Prioridade = 'alta' | 'media' | 'baixa';
 
 export interface Task {
   id: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
-  priority: Priority;
+  titulo: string;
+  descricao: string;
+  status: StatusTarefa;
+  prioridade: Prioridade;
   dataCriacao: Date;
   dataAtualizacao: Date;
   dataInicio?: Date;
   dataFim?: Date;
   responsavelId?: string;
-  progress?: number;
+  responsavelNome?: string;
+  responsavelAvatar?: string;
   userId: string;
+  userEmail: string;
+  concluida: boolean;
 }
 
 // Mock de tarefas para desenvolvimento inicial
-const mockTasks: Omit<Task, 'id' | 'userId'>[] = [
+const mockTasks: Omit<Task, 'id' | 'userId' | 'userEmail'>[] = [
   {
-    title: 'Atualizar documentação do projeto',
-    description: 'Revisar e atualizar a documentação técnica do projeto principal',
-    priority: 'medium',
-    createdAt: new Date(),
-    status: 'pending',
-    assignedTo: 'user-1',
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 1 week from now
+    titulo: 'Atualizar documentação do projeto',
+    descricao: 'Revisar e atualizar a documentação técnica do projeto principal',
+    prioridade: 'media',
+    dataCriacao: new Date(),
+    dataAtualizacao: new Date(),
+    status: 'pendente',
+    responsavelId: 'user-1',
+    dataFim: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
+    concluida: false
   },
   {
-    title: 'Implementar autenticação por OAuth',
-    description: 'Adicionar suporte a login social via Google e Github',
-    priority: 'high',
-    createdAt: new Date(),
-    status: 'in_progress',
-    assignedTo: 'user-2',
-    dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
+    titulo: 'Implementar autenticação por OAuth',
+    descricao: 'Adicionar suporte a login social via Google e Github',
+    prioridade: 'alta',
+    dataCriacao: new Date(),
+    dataAtualizacao: new Date(),
+    status: 'em_progresso',
+    responsavelId: 'user-2',
+    dataFim: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+    concluida: false
   },
   {
-    title: 'Otimizar consultas do banco de dados',
-    description: 'Melhorar performance das consultas principais',
-    priority: 'high',
-    createdAt: new Date(),
-    status: 'pending',
-    assignedTo: 'user-3',
-    dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000) // 5 days from now
+    titulo: 'Otimizar consultas do banco de dados',
+    descricao: 'Melhorar performance das consultas principais',
+    prioridade: 'alta',
+    dataCriacao: new Date(),
+    dataAtualizacao: new Date(),
+    status: 'pendente',
+    responsavelId: 'user-3',
+    dataFim: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+    concluida: false
   },
   {
-    title: 'Planejar reunião de sprint',
-    description: 'Organizar pauta e convocar equipe para planejamento',
-    priority: 'low',
-    createdAt: new Date(),
-    status: 'completed',
-    assignedTo: 'user-1',
-    dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
+    titulo: 'Planejar reunião de sprint',
+    descricao: 'Organizar pauta e convocar equipe para planejamento',
+    prioridade: 'baixa',
+    dataCriacao: new Date(),
+    dataAtualizacao: new Date(),
+    status: 'concluida',
+    responsavelId: 'user-1',
+    dataFim: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    concluida: true
   },
   {
-    title: 'Corrigir bug na validação de formulários',
-    description: 'O formulário permite envio com campos obrigatórios vazios',
-    priority: 'medium',
-    createdAt: new Date(),
-    status: 'in_progress',
-    assignedTo: 'user-4',
-    dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) // 2 days from now
+    titulo: 'Corrigir bug na validação de formulários',
+    descricao: 'O formulário permite envio com campos obrigatórios vazios',
+    prioridade: 'media',
+    dataCriacao: new Date(),
+    dataAtualizacao: new Date(),
+    status: 'em_progresso',
+    responsavelId: 'user-4',
+    dataFim: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+    concluida: false
   }
 ];
 

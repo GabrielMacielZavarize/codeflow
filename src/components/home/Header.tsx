@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Github, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { PWAInstallButton } from '../PWAInstallButton';
 import ThemeToggle from '../ThemeToggle';
 import {
     Sheet,
@@ -50,7 +49,6 @@ const Header = () => {
 
                 {/* Actions - Desktop */}
                 <div className="hidden md:flex items-center gap-4">
-                    <PWAInstallButton />
                     <ThemeToggle />
                     <Button
                         variant="ghost"
@@ -85,7 +83,6 @@ const Header = () => {
 
                 {/* Actions - Mobile */}
                 <div className="flex md:hidden items-center gap-2">
-                    <PWAInstallButton />
                     <ThemeToggle />
                     {currentUser ? (
                         <Button asChild size="sm" className="bg-primary hover:bg-primary/90">

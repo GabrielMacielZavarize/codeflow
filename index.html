@@ -18,8 +18,6 @@
 
 <body>
   <div id="root"></div>
-  <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-  <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
   <script type="module" src="/src/main.tsx"></script>
   <script type="module">
     import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
@@ -30,7 +28,6 @@
   </script>
   <script>
     if ('serviceWorker' in navigator) {
-      // Registra o Service Worker imediatamente
       navigator.serviceWorker.register('/service-worker.js', {
         scope: '/',
         updateViaCache: 'none'
@@ -38,14 +35,11 @@
         .then(registration => {
           console.log('ServiceWorker registrado com sucesso:', registration.scope);
 
-          // Verifica por atualizações
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Nova versão disponível
                 console.log('Nova versão disponível!');
-                // Recarrega a página para atualizar
                 window.location.reload();
               }
             });
@@ -55,7 +49,6 @@
           console.log('Falha ao registrar ServiceWorker:', error);
         });
 
-      // Força a atualização do Service Worker quando a página carrega
       window.addEventListener('load', () => {
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });

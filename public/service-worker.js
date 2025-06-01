@@ -5,9 +5,7 @@ const urlsToCache = [
     '/manifest.json',
     '/favicon.ico',
     '/logo192.png',
-    '/logo512.png',
-    '/src/main.tsx',
-    '/src/App.tsx'
+    '/logo512.png'
 ];
 
 // Instalação do Service Worker
@@ -46,6 +44,20 @@ self.addEventListener('activate', event => {
 
 // Estratégia de cache: Network First, fallback to cache
 self.addEventListener('fetch', event => {
+    // Não cachear requisições de API, dados ou POST
+    if (event.request.url.includes('/api/') ||
+        event.request.url.includes('/analytics') ||
+        event.request.url.includes('/tasks') ||
+        event.request.url.includes('/auth') ||
+        event.request.method === 'POST') {
+        return;
+    }
+
+    // Só cachear requisições GET
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
     event.respondWith(
         fetch(event.request)
             .then(response => {

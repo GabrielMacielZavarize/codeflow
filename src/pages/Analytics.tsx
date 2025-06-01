@@ -8,12 +8,14 @@ import AreaChartCard from '../components/analytics/AreaChartCard';
 import { getPieChartData, getBarChartData, getLineChartData, getResponsibleChartData, getPriorityChartData, getCompletionRateData } from '../services/analyticsService';
 
 const Analytics: React.FC = () => {
-  const { tasks, loading: tasksLoading } = useTasks();
+  const { tasks, loading: tasksLoading, error } = useTasks();
   const [period, setPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const [filteredTasks, setFilteredTasks] = useState(tasks);
 
   // Atualiza os dados filtrados quando tasks ou period mudar
   useEffect(() => {
+    if (!tasks) return;
+
     const filtered = tasks.filter(task => {
       const taskDate = task.dataCriacao.toDate();
       const now = new Date();
@@ -47,6 +49,27 @@ const Analytics: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500">Erro ao carregar dados: {error}</div>
+      </div>
+    );
+  }
+
+  if (!tasks || tasks.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Análises</h1>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-gray-500 dark:text-gray-400">Nenhuma tarefa encontrada para análise</p>
+        </div>
       </div>
     );
   }

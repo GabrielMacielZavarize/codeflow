@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp, QuerySnapshot, DocumentData } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp, QuerySnapshot, DocumentData, where } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase/config';
+import { useAuth } from './AuthContext';
 
 export type TaskStatus = 'pendente' | 'em_progresso' | 'concluida' | 'atrasada';
 export type TaskPriority = 'baixa' | 'media' | 'alta';
@@ -31,6 +32,7 @@ interface TaskContextData {
     addTask: (task: NewTask) => Promise<void>;
     updateTask: (id: string, task: Partial<Task>) => Promise<void>;
     deleteTask: (id: string) => Promise<void>;
+    refreshTasks: () => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextData>({
@@ -39,37 +41,90 @@ const TaskContext = createContext<TaskContextData>({
     error: null,
     addTask: async () => { },
     updateTask: async () => { },
-    deleteTask: async () => { }
+    deleteTask: async () => { },
+    refreshTasks: async () => { }
 });
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { currentUser } = useAuth();
+
+    const fetchTasks = async () => {
+        if (!currentUser) {
+            setTasks([]);
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const tasksRef = collection(db, 'tarefas');
+            const userQuery = query(
+                tasksRef,
+                where('userId', '==', currentUser.uid)
+            );
+
+            const unsubscribe = onSnapshot(
+                userQuery,
+                (snapshot: QuerySnapshot<DocumentData>) => {
+                    const tasksList = snapshot.docs
+                        .map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        })) as Task[];
+
+                    const sortedTasks = tasksList.sort((a, b) =>
+                        b.dataCriacao.toDate().getTime() - a.dataCriacao.toDate().getTime()
+                    );
+
+                    setTasks(sortedTasks);
+                    setLoading(false);
+                },
+                (err) => {
+                    if (err.code === 'permission-denied') {
+                        setTasks([]);
+                    }
+                    setError('Erro ao carregar tarefas');
+                    setLoading(false);
+                }
+            );
+
+            return unsubscribe;
+        } catch (err) {
+            setError('Erro ao carregar tarefas');
+            setLoading(false);
+            return undefined;
+        }
+    };
+
+    const refreshTasks = async () => {
+        const unsubscribe = await fetchTasks();
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
 
     useEffect(() => {
-        const tasksRef = collection(db, 'tarefas');
-        const q = query(tasksRef, orderBy('dataCriacao', 'desc'));
+        let unsubscribe: (() => void) | undefined;
 
-        const unsubscribe = onSnapshot(
-            q,
-            (snapshot: QuerySnapshot<DocumentData>) => {
-                const tasksList = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                })) as Task[];
+        const setupTasks = async () => {
+            unsubscribe = await fetchTasks();
+        };
 
-                setTasks(tasksList);
-                setLoading(false);
-            },
-            (err) => {
-                setError('Erro ao carregar tarefas');
-                setLoading(false);
+        setupTasks();
+
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
             }
-        );
-
-        return () => unsubscribe();
-    }, []);
+            setTasks([]);
+            setLoading(true);
+        };
+    }, [currentUser]);
 
     const addTask = async (task: NewTask): Promise<void> => {
         const user = auth.currentUser;
@@ -126,7 +181,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 error,
                 addTask,
                 updateTask,
-                deleteTask
+                deleteTask,
+                refreshTasks
             }}
         >
             {children}

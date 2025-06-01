@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from '@/lib/utils';
 import { getNotifications } from '../services/notificationService';
+import { PWAInstallButton } from './PWAInstallButton';
 
 const Navbar = () => {
   const { currentUser, logout } = useAuth();

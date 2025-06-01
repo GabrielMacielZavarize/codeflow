@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Codeflow</title>
-  <meta name="description" content="" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="CodeFlow - Gerenciamento de Projetos" />
+  <link rel="apple-touch-icon" href="/logo192.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>CodeFlow</title>
 
   <meta property="og:title" content="codeflow-solution" />
   <meta property="og:description" content="" />
   <meta property="og:type" content="website" />
-  <link rel="icon" href="./src/public/favicon.png" type="image/png" />
 </head>
 
 <body>
@@ -21,10 +24,45 @@
   <script type="module">
     import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
     Chatbot.init({
-        chatflowid: "90b09cd3-0527-438b-a0cf-4b64d0324aeb",
-        apiHost: "https://cloud.flowiseai.com",
+      chatflowid: "90b09cd3-0527-438b-a0cf-4b64d0324aeb",
+      apiHost: "https://cloud.flowiseai.com",
     })
-</script>
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      // Registra o Service Worker imediatamente
+      navigator.serviceWorker.register('/service-worker.js', {
+        scope: '/',
+        updateViaCache: 'none'
+      })
+        .then(registration => {
+          console.log('ServiceWorker registrado com sucesso:', registration.scope);
+
+          // Verifica por atualizações
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Nova versão disponível
+                console.log('Nova versão disponível!');
+                // Recarrega a página para atualizar
+                window.location.reload();
+              }
+            });
+          });
+        })
+        .catch(error => {
+          console.log('Falha ao registrar ServiceWorker:', error);
+        });
+
+      // Força a atualização do Service Worker quando a página carrega
+      window.addEventListener('load', () => {
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+        }
+      });
+    }
+  </script>
 </body>
 
 </html>

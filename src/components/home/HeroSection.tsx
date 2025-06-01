@@ -1,10 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Star, ArrowRight, Sparkles } from 'lucide-react';
 import TypewriterText from '@/components/TypewriterText';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
+import { PWAInstallButton } from '../PWAInstallButton';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const fadeInUp = {
     initial: { opacity: 0, y: 60 },
@@ -48,6 +50,8 @@ const stats = [
 
 const HeroSection = () => {
     const { currentUser } = useAuth();
+    const navigate = useNavigate();
+    const { t } = useLanguage();
 
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

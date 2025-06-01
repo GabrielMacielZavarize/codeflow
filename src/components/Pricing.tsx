@@ -19,7 +19,7 @@ const plans = [
         ],
         buttonText: "Começar Agora",
         buttonIcon: ArrowRight,
-        buttonLink: "/dashboard",
+        buttonLink: "/payment/basic",
         popular: false
     },
     {
@@ -38,7 +38,7 @@ const plans = [
         ],
         buttonText: "Começar Agora",
         buttonIcon: ArrowRight,
-        buttonLink: "/contact",
+        buttonLink: "/payment/plus",
         popular: true
     },
     {
@@ -59,7 +59,7 @@ const plans = [
         ],
         buttonText: "Começar Agora",
         buttonIcon: ArrowRight,
-        buttonLink: "/contact",
+        buttonLink: "/payment/pro",
         popular: false
     }
 ];

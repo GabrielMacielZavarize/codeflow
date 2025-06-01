@@ -28,6 +28,7 @@ import Privacy from './pages/Privacy';
 import Careers from './pages/Careers';
 import OpenSource from './pages/OpenSource';
 import AISupport from './pages/AISupport';
+import Payment from './pages/Payment';
 import { Toaster } from "@/components/ui/sonner";
 
 // Create a client
@@ -179,6 +180,9 @@ const App = () => (
                   {/* New routes */}
                   <Route path="/open-source" element={<OpenSource />} />
                   <Route path="/ai-support" element={<AISupport />} />
+
+                  {/* Payment route */}
+                  <Route path="/payment/:planId" element={<Payment />} />
 
                   {/* 404 page */}
                   <Route path="*" element={<NotFound />} />

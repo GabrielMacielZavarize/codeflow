@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, where, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase/config';
 import { AuditLogHeader } from '@/components/audit/AuditLogHeader';
 import { AuditLogList } from '@/components/audit/AuditLogList';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AuditActivity {
   id: string;
@@ -20,7 +21,7 @@ interface AuditActivity {
   timestamp: Date;
 }
 
-const AuditLogs = () => {
+const AuditLogs: React.FC = () => {
   const { currentUser } = useAuth();
   const { t } = useLanguage();
   const [activities, setActivities] = useState<AuditActivity[]>([]);
@@ -29,14 +30,33 @@ const AuditLogs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
   const [entityFilter, setEntityFilter] = useState<string>('all');
+  const [period, setPeriod] = useState<'day' | 'week' | 'month'>('day');
 
   useEffect(() => {
     const fetchActivities = async () => {
       try {
         setIsLoading(true);
 
+        const now = Timestamp.now();
+        let startDate: Date;
+
+        switch (period) {
+          case 'day':
+            startDate = new Date(now.toDate().setHours(0, 0, 0, 0));
+            break;
+          case 'week':
+            startDate = new Date(now.toDate().setDate(now.toDate().getDate() - 7));
+            break;
+          case 'month':
+            startDate = new Date(now.toDate().setDate(now.toDate().getDate() - 30));
+            break;
+          default:
+            startDate = new Date(now.toDate().setHours(0, 0, 0, 0));
+        }
+
         const auditQuery = query(
           collection(db, 'auditLogs'),
+          where('timestamp', '>=', Timestamp.fromDate(startDate)),
           orderBy('timestamp', 'desc'),
           limit(50)
         );
@@ -73,7 +93,7 @@ const AuditLogs = () => {
     };
 
     fetchActivities();
-  }, []);
+  }, [period]);
 
   useEffect(() => {
     let filtered = [...activities];
@@ -104,6 +124,19 @@ const AuditLogs = () => {
       transition={{ duration: 0.5 }}
       className="container mx-auto px-4 py-8 space-y-6"
     >
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Logs de Auditoria
+        </h1>
+        <Tabs defaultValue="day" onValueChange={(value) => setPeriod(value as 'day' | 'week' | 'month')}>
+          <TabsList>
+            <TabsTrigger value="day">Hoje</TabsTrigger>
+            <TabsTrigger value="week">Última Semana</TabsTrigger>
+            <TabsTrigger value="month">Último Mês</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       <AuditLogHeader
         title={t.auditLogs.title}
         description={t.auditLogs.description}

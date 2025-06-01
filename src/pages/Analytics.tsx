@@ -6,6 +6,7 @@ import PieChartCard from '../components/analytics/PieChartCard';
 import BarChartCard from '../components/analytics/BarChartCard';
 import AreaChartCard from '../components/analytics/AreaChartCard';
 import { getPieChartData, getBarChartData, getLineChartData, getResponsibleChartData, getPriorityChartData, getCompletionRateData } from '../services/analyticsService';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 const Analytics: React.FC = () => {
   const { tasks, loading: tasksLoading, error } = useTasks();
@@ -76,21 +77,24 @@ const Analytics: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Análises</h1>
-        <div className="flex space-x-2">
-          {['7d', '30d', '90d', '1y'].map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p as '7d' | '30d' | '90d' | '1y')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${period === p
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                }`}
-            >
-              {p === '7d' ? '7 dias' : p === '30d' ? '30 dias' : p === '90d' ? '90 dias' : '1 ano'}
-            </button>
-          ))}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="w-full sm:w-auto">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Análise de Desempenho
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Visualize métricas e tendências do seu time
+          </p>
+        </div>
+        <div className="w-full sm:w-auto">
+          <Tabs defaultValue="7d" className="w-full" onValueChange={(value) => setPeriod(value as '7d' | '30d' | '90d' | '1y')}>
+            <TabsList className="grid grid-cols-4 w-full sm:w-auto">
+              <TabsTrigger value="7d" className="text-xs sm:text-sm">7 dias</TabsTrigger>
+              <TabsTrigger value="30d" className="text-xs sm:text-sm">30 dias</TabsTrigger>
+              <TabsTrigger value="90d" className="text-xs sm:text-sm">90 dias</TabsTrigger>
+              <TabsTrigger value="1y" className="text-xs sm:text-sm">1 ano</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 

@@ -14,7 +14,7 @@ const plans = [
             "Criação de tarefas ilimitadas",
             "Atualizações em tempo real",
             "1 projeto ativo",
-            "Tarefas Rápidas feita com IA (Limite 10 requisições diárias)",
+            "Tarefas Rápidas feitas com IA (Limite 10 requisições diárias)",
             "Criação de Relatórios com IA (Limite de 5 requisições mensais)"
         ],
         buttonText: "Disponível em Breve",
@@ -32,7 +32,7 @@ const plans = [
             "5 projetos ativos",
             "Personalização de temas",
             "Integração com APIs populares",
-            "Tarefas Rápidas feita com IA (Limite 30 requisições diárias)",
+            "Tarefas Rápidas feitas com IA (Limite 30 requisições diárias)",
             "Criação de Relatórios com IA (Limite de 15 requisições mensais)"
         ],
         buttonText: "Disponível em Breve",
@@ -46,7 +46,7 @@ const plans = [
         price: "R$ 99,90",
         features: [
             "Todas as features do Plus",
-            "Tarefas Rápidas feita com IA (Ilimitado)",
+            "Tarefas Rápidas feitas com IA (Ilimitado)",
             "Criação de Relatórios com IA (Ilimitado)",
             "Projetos ilimitados",
             "Personalização avançada",

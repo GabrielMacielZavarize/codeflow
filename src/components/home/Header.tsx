@@ -50,7 +50,7 @@ const Header = () => {
                 {/* Actions - Desktop */}
                 <div className="hidden md:flex items-center gap-4">
                     <ThemeToggle />
-                    <Button
+                    {/* <Button
                         variant="ghost"
                         size="icon"
                         asChild
@@ -64,8 +64,8 @@ const Header = () => {
                         >
                             <Github className="h-5 w-5" />
                         </a>
-                    </Button>
-                    {currentUser ? (
+                    </Button> */}
+                    {/* {currentUser ? (
                         <Button asChild className="bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105 text-sm sm:text-base">
                             <Link to="/dashboard">Acessar Dashboard</Link>
                         </Button>
@@ -78,13 +78,13 @@ const Header = () => {
                                 <Link to="/login">Entrar</Link>
                             </Button>
                         </>
-                    )}
+                    )} */}
                 </div>
 
                 {/* Actions - Mobile */}
                 <div className="flex md:hidden items-center gap-2">
                     <ThemeToggle />
-                    {currentUser ? (
+                    {/* {currentUser ? (
                         <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
                             <Link to="/dashboard">Dashboard</Link>
                         </Button>
@@ -92,7 +92,7 @@ const Header = () => {
                         <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
                             <Link to="/login">Entrar</Link>
                         </Button>
-                    )}
+                    )} */}
                     <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                         <SheetTrigger asChild>
                             <Button variant="ghost" size="icon" className="hover:bg-accent">
@@ -124,7 +124,7 @@ const Header = () => {
                                 </div>
 
                                 <div className="border-t p-4 space-y-4">
-                                    <Button
+                                    {/* <Button
                                         variant="ghost"
                                         size="icon"
                                         asChild
@@ -139,12 +139,12 @@ const Header = () => {
                                             <Github className="h-5 w-5" />
                                             <span>Ver no GitHub</span>
                                         </a>
-                                    </Button>
-                                    {!currentUser && (
+                                    </Button> */}
+                                    {/* {!currentUser && (
                                         <Button variant="outline" asChild className="w-full">
                                             <Link to="/register">Criar Conta</Link>
                                         </Button>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                         </SheetContent>

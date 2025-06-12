@@ -1,6 +1,8 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getDatabase } from 'firebase/database';
+import { getStorage } from 'firebase/storage';
 
 // Verifica se as variáveis de ambiente estão definidas
 const requiredEnvVars = [
@@ -9,7 +11,8 @@ const requiredEnvVars = [
     'VITE_FIREBASE_PROJECT_ID',
     'VITE_FIREBASE_STORAGE_BUCKET',
     'VITE_FIREBASE_MESSAGING_SENDER_ID',
-    'VITE_FIREBASE_APP_ID'
+    'VITE_FIREBASE_APP_ID',
+    'VITE_FIREBASE_DATABASE_URL'
 ];
 
 // Verifica se todas as variáveis de ambiente necessárias estão definidas
@@ -25,16 +28,15 @@ export const firebaseConfig = {
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
 };
 
 // Inicializa o Firebase apenas se não houver uma instância existente
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Inicializa o Firestore
-const db = getFirestore(app);
-
-// Inicializa o Auth
-const auth = getAuth(app);
-
-export { app, auth, db }; 
+// Inicializa os serviços
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const rtdb = getDatabase(app);
+export const storage = getStorage(app); 

@@ -1,0 +1,8 @@
+{
+    "reports": {
+        "deleteSuccess": "Relatório excluído com sucesso",
+        "deleteError": "Erro ao excluir relatório",
+        "uploadSuccess": "Relatório enviado com sucesso",
+        "uploadError": "Erro ao enviar relatório"
+    }
+}

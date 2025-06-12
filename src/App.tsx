@@ -30,6 +30,7 @@ import OpenSource from './pages/OpenSource';
 import AISupport from './pages/AISupport';
 import Payment from './pages/Payment';
 import { Toaster } from "@/components/ui/sonner";
+import Chat from './pages/Chat';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -172,6 +173,16 @@ const App = () => (
                       <PrivateRoute>
                         <AuthenticatedLayout>
                           <Calendar />
+                        </AuthenticatedLayout>
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/chat"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout>
+                          <Chat />
                         </AuthenticatedLayout>
                       </PrivateRoute>
                     }

@@ -139,7 +139,7 @@ const TeamSection = () => {
                                         </h3>
                                         <p className="text-sm text-primary font-medium">{member.role}</p>
                                     </div>
-                                    <div className="flex items-center gap-4 mt-4">
+                                    {/* <div className="flex items-center gap-4 mt-4">
                                         <a
                                             href={member.github}
                                             target="_blank"
@@ -156,7 +156,7 @@ const TeamSection = () => {
                                         >
                                             <Linkedin className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                                         </a>
-                                    </div>
+                                    </div> */}
                                 </CardContent>
                             </Card>
                         </motion.div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp, QuerySnapshot, DocumentData, where } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp, QuerySnapshot, DocumentData } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase/config';
 import { useAuth } from './AuthContext';
 
@@ -63,13 +63,13 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setError(null);
 
             const tasksRef = collection(db, 'tarefas');
-            const userQuery = query(
+            const tasksQuery = query(
                 tasksRef,
-                where('userId', '==', currentUser.uid)
+                orderBy('dataCriacao', 'desc')
             );
 
             const unsubscribe = onSnapshot(
-                userQuery,
+                tasksQuery,
                 (snapshot: QuerySnapshot<DocumentData>) => {
                     const tasksList = snapshot.docs
                         .map(doc => ({
@@ -77,11 +77,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             ...doc.data()
                         })) as Task[];
 
-                    const sortedTasks = tasksList.sort((a, b) =>
-                        b.dataCriacao.toDate().getTime() - a.dataCriacao.toDate().getTime()
-                    );
-
-                    setTasks(sortedTasks);
+                    setTasks(tasksList);
                     setLoading(false);
                 },
                 (err) => {

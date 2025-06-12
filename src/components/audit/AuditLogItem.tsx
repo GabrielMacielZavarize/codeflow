@@ -79,10 +79,10 @@ const AuditLogItem = forwardRef<HTMLDivElement, AuditLogItemProps>(({ activity, 
             </motion.div>
             <motion.div
                 whileHover={{ scale: 1.01 }}
-                className="bg-gradient-to-br from-background/80 via-background/90 to-muted/30 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-primary/10 hover:border-primary/20 transition-all duration-200"
+                className="bg-gradient-to-br from-background/80 via-background/90 to-muted/30 backdrop-blur-sm rounded-lg p-2 sm:p-4 border border-primary/10 hover:border-primary/20 transition-all duration-200"
             >
-                <div className="flex flex-col gap-3">
-                    <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-2 sm:gap-3">
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
                         <Badge variant="secondary" className={`${getActionColor(activity.action)} transition-colors text-xs sm:text-sm`}>
                             {activity.action}
                         </Badge>
@@ -90,26 +90,12 @@ const AuditLogItem = forwardRef<HTMLDivElement, AuditLogItemProps>(({ activity, 
                             {activity.entity}
                         </Badge>
                     </div>
-                    <div className="space-y-2">
-                        <p className="font-medium text-sm sm:text-base">
-                            {activity.details}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                                <User className="h-3 w-3" />
-                                <span>{activity.userEmail}</span>
-                            </div>
-                            {activity.entityId && (
-                                <div className="flex items-center gap-1">
-                                    <span className="text-xs">ID: {activity.entityId}</span>
-                                </div>
-                            )}
-                            <div className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                <span>{format(new Date(activity.timestamp), 'dd/MM/yyyy HH:mm', { locale: ptBR })}</span>
-                            </div>
-                        </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                        <span className="text-muted-foreground">{activity.userEmail}</span>
+                        <span className="hidden sm:inline text-muted-foreground">•</span>
+                        <span className="text-muted-foreground">{format(activity.timestamp, "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span>
                     </div>
+                    <p className="text-sm sm:text-base">{activity.details}</p>
                 </div>
             </motion.div>
         </motion.div>

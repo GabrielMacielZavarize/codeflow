@@ -1,13 +1,10 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, doc, onSnapshot, query, where, orderBy, limit, getDocs, updateDoc, deleteDoc, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, doc, onSnapshot, query, where, orderBy, limit, getDocs, updateDoc, deleteDoc, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import { firebaseConfig } from './config';
+import { db, auth, storage, rtdb } from './config';
 
-// Inicializa o Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Re-exporta as instâncias para manter a compatibilidade
+export { db, auth, storage, rtdb };
 
 // Array para armazenar as funções de unsubscribe
 let unsubscribeFunctions: (() => void)[] = [];

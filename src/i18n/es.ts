@@ -58,7 +58,8 @@ export const es = {
     reports: "Informes",
     settings: "Configuración",
     auditLogs: "Registros de Auditoría",
-    notifications: "Notificaciones"
+    notifications: "Notificaciones",
+    chat: "Chat"
   },
 
   // Settings

@@ -67,26 +67,26 @@ export const AuditLogHeader: React.FC<AuditLogHeaderProps> = ({
                 >
                     <div className="flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-primary/10">
-                            <Activity className="h-6 w-6 text-primary" />
+                            <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                         </div>
-                        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-purple-500 to-blue-500 bg-clip-text text-transparent">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-purple-500 to-blue-500 bg-clip-text text-transparent">
                             {title}
                         </h1>
                     </div>
-                    <p className="text-muted-foreground max-w-2xl">{description}</p>
+                    <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">{description}</p>
                 </motion.div>
             </div>
 
             <Card className="bg-gradient-to-br from-background via-background/95 to-muted/30 backdrop-blur-sm border border-primary/10 shadow-2xl">
-                <CardHeader className="border-b border-primary/10">
+                <CardHeader className="border-b border-primary/10 p-3 sm:p-6">
                     <div className="flex items-center gap-2">
-                        <Settings className="h-5 w-5 text-primary" />
-                        <CardTitle className="text-xl">{translations.filters}</CardTitle>
+                        <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                        <CardTitle className="text-lg sm:text-xl">{translations.filters}</CardTitle>
                     </div>
-                    <CardDescription>{translations.filtersDescription}</CardDescription>
+                    <CardDescription className="text-sm">{translations.filtersDescription}</CardDescription>
                 </CardHeader>
-                <CardContent className="p-4 sm:p-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <CardContent className="p-3 sm:p-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -98,7 +98,7 @@ export const AuditLogHeader: React.FC<AuditLogHeaderProps> = ({
                                 placeholder={translations.searchPlaceholder}
                                 value={searchTerm}
                                 onChange={(e) => onSearchChange(e.target.value)}
-                                className="pl-10 bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                                className="pl-10 bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200 text-sm sm:text-base"
                             />
                         </motion.div>
 
@@ -108,7 +108,7 @@ export const AuditLogHeader: React.FC<AuditLogHeaderProps> = ({
                             transition={{ duration: 0.3, delay: 0.4 }}
                         >
                             <Select value={actionFilter} onValueChange={onActionFilterChange}>
-                                <SelectTrigger className="bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                                <SelectTrigger className="bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200 text-sm sm:text-base">
                                     <SelectValue placeholder={translations.filterByAction} />
                                 </SelectTrigger>
                                 <SelectContent className="bg-background/95 backdrop-blur-sm border-primary/10">
@@ -130,7 +130,7 @@ export const AuditLogHeader: React.FC<AuditLogHeaderProps> = ({
                             transition={{ duration: 0.3, delay: 0.5 }}
                         >
                             <Select value={entityFilter} onValueChange={onEntityFilterChange}>
-                                <SelectTrigger className="bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                                <SelectTrigger className="bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200 text-sm sm:text-base">
                                     <SelectValue placeholder={translations.filterByEntity} />
                                 </SelectTrigger>
                                 <SelectContent className="bg-background/95 backdrop-blur-sm border-primary/10">

@@ -10,16 +10,16 @@ const plans = [
         description: "Perfeito para freelancers e pequenos projetos",
         price: "Grátis",
         features: [
-            "Acesso ao código fonte básico",
-            "Suporte por email",
+            "Acesso a todas as funcionalidades principais",
+            "Criação de tarefas ilimitadas",
             "Atualizações em tempo real",
-            "Documentação básica",
             "1 projeto ativo",
-            "Código Justo - Acesso ao projeto básico"
+            "Tarefas Rápidas feita com IA (Limite 10 requisições diárias)",
+            "Criação de Relatórios com IA (Limite de 5 requisições mensais)"
         ],
-        buttonText: "Começar Agora",
+        buttonText: "Disponível em Breve",
         buttonIcon: ArrowRight,
-        buttonLink: "/payment/basic",
+        buttonLink: "#",
         popular: false
     },
     {
@@ -29,16 +29,15 @@ const plans = [
         features: [
             "Todas as features do Básico",
             "Suporte prioritário",
-            "Atualizações em tempo real",
-            "Documentação completa",
             "5 projetos ativos",
-            "Código Justo - Acesso ao projeto completo",
             "Personalização de temas",
-            "Integração com APIs populares"
+            "Integração com APIs populares",
+            "Tarefas Rápidas feita com IA (Limite 30 requisições diárias)",
+            "Criação de Relatórios com IA (Limite de 15 requisições mensais)"
         ],
-        buttonText: "Começar Agora",
+        buttonText: "Disponível em Breve",
         buttonIcon: ArrowRight,
-        buttonLink: "/payment/plus",
+        buttonLink: "#",
         popular: true
     },
     {
@@ -47,19 +46,15 @@ const plans = [
         price: "R$ 99,90",
         features: [
             "Todas as features do Plus",
-            "Suporte 24/7",
-            "Atualizações em tempo real",
-            "Documentação premium",
+            "Tarefas Rápidas feita com IA (Ilimitado)",
+            "Criação de Relatórios com IA (Ilimitado)",
             "Projetos ilimitados",
-            "Código Justo - Acesso ao projeto completo",
             "Personalização avançada",
-            "Integração com qualquer API",
-            "SLA garantido",
-            "Treinamento da equipe"
+            "Treinamento da equipe (Desconto em plataformas de educação)"
         ],
-        buttonText: "Começar Agora",
+        buttonText: "Disponível em Breve",
         buttonIcon: ArrowRight,
-        buttonLink: "/payment/pro",
+        buttonLink: "#",
         popular: false
     }
 ];
@@ -106,7 +101,7 @@ export function Pricing() {
                             viewport={{ margin: "-100px" }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
                         >
-                            <Card className={`h-full backdrop-blur-sm bg-white/50 dark:bg-gray-900/50 border border-primary/20 ${plan.popular ? 'ring-2 ring-primary' : ''}`}>
+                            <Card className={`h-full backdrop-blur-sm bg-white/50 dark:bg-gray-900/50 border border-primary/20 ${plan.popular ? 'ring-2 ring-primary' : ''} flex flex-col`}>
                                 <CardHeader>
                                     {plan.popular && (
                                         <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary mb-4">
@@ -118,7 +113,7 @@ export function Pricing() {
                                         {plan.description}
                                     </CardDescription>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="flex-grow">
                                     <div className="mb-6">
                                         <span className="text-4xl font-bold">{plan.price}</span>
                                         {plan.price !== "Grátis" && (
@@ -134,28 +129,14 @@ export function Pricing() {
                                         ))}
                                     </ul>
                                 </CardContent>
-                                <CardFooter>
-                                    {plan.buttonLink.startsWith('http') ? (
-                                        <Button
-                                            asChild
-                                            className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : 'bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100'}`}
-                                        >
-                                            <a href={plan.buttonLink} target="_blank" rel="noopener noreferrer">
-                                                {plan.buttonText}
-                                                <plan.buttonIcon className="ml-2 h-4 w-4" />
-                                            </a>
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            asChild
-                                            className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : 'bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100'}`}
-                                        >
-                                            <Link to={plan.buttonLink}>
-                                                {plan.buttonText}
-                                                <plan.buttonIcon className="ml-2 h-4 w-4" />
-                                            </Link>
-                                        </Button>
-                                    )}
+                                <CardFooter className="mt-auto">
+                                    <Button
+                                        disabled
+                                        className={`w-full opacity-75 cursor-not-allowed ${plan.popular ? 'bg-primary/50 hover:bg-primary/50' : 'bg-gray-400 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-600'}`}
+                                    >
+                                        {plan.buttonText}
+                                        <plan.buttonIcon className="ml-2 h-4 w-4" />
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         </motion.div>

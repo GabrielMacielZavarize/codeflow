@@ -58,7 +58,8 @@ export const ptBR = {
     reports: "Relatórios",
     settings: "Configurações",
     auditLogs: "Logs de Auditoria",
-    notifications: "Notificações"
+    notifications: "Notificações",
+    chat: "Chat"
   },
 
   // Dashboard

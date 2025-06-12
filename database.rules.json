@@ -1,0 +1,12 @@
+{
+    "rules": {
+        ".read": "now < 1749783600000",
+        ".write": "now < 1749783600000", 
+        "status": {
+            "$uid": {
+                ".read": "auth != null",
+                ".write": "auth != null && auth.uid === $uid"
+            }
+        }
+    }
+}

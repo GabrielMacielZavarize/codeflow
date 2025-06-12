@@ -7,6 +7,7 @@ import TeamSection from '@/components/home/TeamSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import Footer from '@/components/home/Footer';
 import { Pricing } from '@/components/Pricing';
+import BetaForm from '@/components/home/BetaForm';
 
 const Home = () => {
   return (
@@ -16,8 +17,9 @@ const Home = () => {
       <StorySection />
       <FeaturesSection />
       <TeamSection />
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
       <Pricing></Pricing>
+      <BetaForm />
       <Footer />
     </div>
   );

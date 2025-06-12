@@ -122,14 +122,14 @@ const AuditLogs: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-8 space-y-6"
+      className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6"
     >
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
           Logs de Auditoria
         </h1>
-        <Tabs defaultValue="day" onValueChange={(value) => setPeriod(value as 'day' | 'week' | 'month')}>
-          <TabsList>
+        <Tabs defaultValue="day" onValueChange={(value) => setPeriod(value as 'day' | 'week' | 'month')} className="w-full sm:w-auto">
+          <TabsList className="w-full sm:w-auto grid grid-cols-3">
             <TabsTrigger value="day">Hoje</TabsTrigger>
             <TabsTrigger value="week">Última Semana</TabsTrigger>
             <TabsTrigger value="month">Último Mês</TabsTrigger>

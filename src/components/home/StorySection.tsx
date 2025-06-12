@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Clock, Code, Sparkles, ArrowRight, Github, Bot } from 'lucide-react';
+import { Clock, Code, Sparkles, ArrowRight, FileText, Bot } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -84,7 +84,7 @@ const StorySection = () => {
                         transition={{ delay: 0.2 }}
                         className="mt-4 text-gray-600 dark:text-gray-400 text-base sm:text-lg md:text-xl"
                     >
-                        Nascemos em 2025 com uma missão clara: transformar a gestão de projetos através de código aberto e inovação
+                        Nascemos em 2025 com uma missão clara: revolucionar a gestão de projetos com tecnologia inteligente e soluções inovadoras.
                     </motion.p>
                 </div>
 
@@ -128,7 +128,6 @@ const StorySection = () => {
                         <div className="grid gap-6 sm:grid-cols-2">
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
-                                transition={{ duration: 0.3 }}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ margin: "-100px" }}
@@ -138,14 +137,14 @@ const StorySection = () => {
                                     <CardContent className="p-6 space-y-4">
                                         <div className="flex items-center gap-4">
                                             <div className="rounded-full bg-gradient-to-r from-primary/20 to-primary/10 w-12 h-12 flex items-center justify-center">
-                                                <Github className="h-6 w-6 text-primary" />
+                                                <FileText className="h-6 w-6 text-primary" />
                                             </div>
                                             <h4 className="text-lg font-medium text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
-                                                Código Aberto
+                                                Sistema de Tarefas Rápidas
                                             </h4>
                                         </div>
                                         <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
-                                            Todo o código fonte está disponível no GitHub, permitindo transparência e colaboração.
+                                            Uma ideia rápida, uma tarefa pronta. Nossa IA transforma texto em tarefas claras e organizadas.
                                         </p>
                                         <Link to="/open-source" className="inline-flex items-center text-primary hover:text-primary/80 transition-colors">
                                             Saiba mais
@@ -156,7 +155,6 @@ const StorySection = () => {
                             </motion.div>
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
-                                transition={{ duration: 0.3 }}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ margin: "-100px" }}
